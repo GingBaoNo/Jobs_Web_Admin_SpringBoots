@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Web Service Tuyển Dụng</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        .register-page {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .register-form .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+
+        .register-form .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+
+        .register-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            background: white;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .role-btn.active, .role-btn:hover {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body class="register-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <div class="card register-card">
+                    <div class="register-header">
+                        <h2><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản Nhà Tuyển Dụng</h2>
+                        <p class="mb-0">Tạo tài khoản để bắt đầu đăng tin tuyển dụng!</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" th:text="${errorMessage}">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/register}" method="post" th:object="${user}" class="register-form">
+                            <!-- Bộ chọn vai trò: Chỉ hiển thị "Nhà tuyển dụng" -->
+                            <div class="role-selector">
+                                <button type="button" class="role-btn active" data-role="employer">Nhà tuyển dụng</button>
+                                <!-- Nút "Người xin việc" đã bị xóa -->
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="taiKhoan" class="form-label">Tài khoản <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input type="text" class="form-control" id="taiKhoan" th:field="*{taiKhoan}" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label for="tenHienThi" class="form-label">Tên hiển thị</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                                        <input type="text" class="form-control" id="tenHienThi" th:field="*{tenHienThi}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="lienHe" class="form-label">Email hoặc số điện thoại <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input type="text" class="form-control" id="lienHe" th:field="*{lienHe}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="matKhau" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="matKhau" th:field="*{matKhau}" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="confirmPassword" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="roleId" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                <select class="form-select" id="roleId" name="roleId" required style="display: none;"> <!-- Ẩn dropdown -->
+                                    <!-- Chỉ hiển thị vai trò NTD, ẩn NV và ADMIN -->
+                                    <option value="">Chọn vai trò</option>
+                                    <option th:each="role : ${roles}"
+                                            th:value="${role.maVaiTro}"
+                                            th:text="${role.tenVaiTro}"
+                                            th:if="${role.tenVaiTro == 'NTD'}"
+                                            th:selected="${role.tenVaiTro == 'NTD'}">Vai trò</option>
+                                </select>
+                                <!-- Hoặc có thể đặt một input hidden nếu chắc chắn NTD luôn được chọn -->
+                                <input type="hidden" name="roleId" value="" id="hiddenRoleId" />
+                                <!-- JS sẽ điền giá trị đúng vào hidden input hoặc select nếu hiện -->
+                            </div>
+
+                            <div class="mb-4 form-check">
+                                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    Tôi đồng ý với <a href="#" target="_blank">Điều khoản sử dụng</a> và <a href="#" target="_blank">Chính sách bảo mật</a>
+                                </label>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary register-btn">
+                                    <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản NTD
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <p class="mb-0">Đã có tài khoản? <a th:href="@{/login}" class="text-decoration-none fw-bold" style="color: #667eea;">Đăng nhập ngay</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Lấy ID của vai trò "NTD" từ các option ẩn
+        let ntdRoleId = null;
+        Array.from(document.querySelectorAll('#roleId option')).forEach(option => {
+            if(option.text === 'NTD') {
+                ntdRoleId = option.value;
+            }
+        });
+
+        // Gán ID của NTD cho hidden input khi trang load
+        if (ntdRoleId) {
+            document.getElementById('hiddenRoleId').value = ntdRoleId;
+        }
+
+        // Không cần thay đổi vai trò khi click vì chỉ có một lựa chọn
+        // document.querySelectorAll('.role-btn').forEach(button => {
+        //     button.addEventListener('click', function() {
+        //         document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+        //         this.classList.add('active');
+
+        //         // Change role selection based on button clicked
+        //         if(this.dataset.role === 'employee') {
+        //             // Find role with name 'NV' (Người xin việc)
+        //             Array.from(document.querySelectorAll('#roleId option')).forEach(option => {
+        //                 if(option.text === 'NV') {
+        //                     option.selected = true;
+        //                 }
+        //             });
+        //         } else if(this.dataset.role === 'employer') {
+        //             // Find role with name 'NTD' (Nhà tuyển dụng)
+        //             Array.from(document.querySelectorAll('#roleId option')).forEach(option => {
+        //                 if(option.text === 'NTD') {
+        //                     option.selected = true;
+        //                 }
+        //             });
+        //         }
+        //     });
+        // });
+
+        // Vì chỉ có nút "NTD", ta có thể chọn mặc định và không cần JS phức tạp
+        // Đảm bảo nút "NTD" luôn active
+        document.querySelector('.role-btn[data-role="employer"]').classList.add('active');
+
+        // Cập nhật lại hidden input nếu có thay đổi (trong trường hợp phức tạp hơn, nhưng không cần thiết ở đây)
+        document.querySelector('.role-btn[data-role="employer"]').addEventListener('click', function() {
+             if (ntdRoleId) {
+                document.getElementById('hiddenRoleId').value = ntdRoleId;
+            }
+        });
+
+        // Simple password confirmation validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('matKhau').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Mật khẩu và xác nhận mật khẩu không khớp!');
+                return false;
+            }
+
+            // Đảm bảo giá trị roleId được gửi là của NTD
+            if (ntdRoleId) {
+                // Vì hidden field không bị ảnh hưởng bởi `select`, ta đảm bảo giá trị đúng được gửi
+                // Không cần set lại nếu hidden field đã đúng
+            } else {
+                // Nếu không tìm thấy roleId của NTD, không cho submit
+                e.preventDefault();
+                alert('Lỗi: Không tìm thấy vai trò Nhà Tuyển Dụng.');
+                return false;
+            }
+
+            return true;
+        });
+    </script>
+</body>
+</html>

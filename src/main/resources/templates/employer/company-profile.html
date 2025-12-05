@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Hồ sơ công ty'">Hồ sơ công ty</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>NTD Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/employer/company}">Thông tin công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 th:text="${title}">Hồ sơ công ty</h2>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Thông tin công ty</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
+                            success message
+                        </div>
+
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
+                            error message
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tên công ty</label>
+                                    <p class="form-control-plaintext" th:text="${company?.tenCongTy ?: 'Chưa có'}">Tên công ty</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Người đại diện</label>
+                                    <p class="form-control-plaintext" th:text="${company?.tenNguoiDaiDien ?: 'Chưa có'}">Người đại diện</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Mã số thuế</label>
+                                    <p class="form-control-plaintext" th:text="${company?.maSoThue ?: 'Chưa có'}">Mã số thuế</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Địa chỉ</label>
+                                    <p class="form-control-plaintext" th:text="${company?.diaChi ?: 'Chưa có'}">Địa chỉ</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Liên hệ</label>
+                                    <p class="form-control-plaintext" th:text="${company?.lienHeCty ?: 'Chưa có'}">Liên hệ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hiển thị Logo -->
+                        <div class="mb-3" th:if="${company?.hinhAnhCty}">
+                            <label class="form-label fw-bold">Logo công ty</label>
+                            <div class="mt-2">
+                                <img th:src="${company.hinhAnhCty}" alt="Logo công ty" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                            </div>
+                        </div>
+                         <div class="mb-3" th:unless="${company?.hinhAnhCty}">
+                            <label class="form-label fw-bold">Logo công ty</label>
+                            <div class="mt-2">
+                                <p>Chưa có logo</p>
+                            </div>
+                        </div>
+                        <!-- Nút Sửa -->
+                        <div class="d-grid mt-4">
+                            <a th:href="@{/employer/company/edit}" class="btn btn-primary">Sửa thông tin công ty</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4" th:if="${company}">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Trạng thái xác thực</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1">Trạng thái xác thực công ty</p>
+                                <p class="text-muted mb-0" th:if="${company.daXacThuc}"><i class="fas fa-check-circle text-success me-2"></i>Đã xác thực</p>
+                                <p class="text-muted mb-0" th:unless="${company.daXacThuc}"><i class="fas fa-exclamation-circle text-warning me-2"></i>Chưa xác thực</p>
+                            </div>
+                           <div>
+                                <button class="btn btn-sm btn-outline-primary" th:if="${!company.daXacThuc}">Gửi yêu cầu xác thực</button>
+                                <button class="btn btn-sm btn-outline-success" th:unless="${!company.daXacThuc}">Thông tin đã xác thực</button>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p class="text-muted mb-1">Ngày tạo: <span th:text="${#temporals.format(company.ngayTao, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="text-center">
+                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

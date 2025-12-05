@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Quản lý tin tuyển dụng'">Quản lý tin tuyển dụng</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase me-2"></i>NTD Dashboard
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 th:text="${title}">Quản lý tin tuyển dụng</h2>
+                <hr>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form th:action="@{/employer/jobs}" method="get">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" th:value="${searchQuery}" placeholder="Tìm kiếm tin tuyển dụng...">
+                        <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <a th:href="@{/employer/jobs/create}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Tạo tin tuyển dụng mới
+                </a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
+                    error message
+                </div>
+                
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
+                    success message
+                </div>
+                
+                <div th:if="${#lists.isEmpty(jobs)}" class="text-center py-4">
+                    <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Bạn chưa có tin tuyển dụng nào</p>
+                    <a th:href="@{/employer/jobs/create}" class="btn btn-primary">Đăng tin tuyển dụng đầu tiên</a>
+                </div>
+                
+                <div th:unless="${#lists.isEmpty(jobs)}" class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Vị trí</th>
+                                <th>Lương</th>
+                                <th>Ứng viên</th>
+                                <th>Ngày đăng</th>
+                                <th>Hạn nộp</th>
+                                <th>Trạng thái duyệt</th>
+                                <th>Trạng thái tin</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="job : ${jobs}">
+                                <td>
+                                    <a th:href="@{/employer/jobs/{id}/edit(id=${job.maCongViec})}" th:text="${job.tieuDe}">Vị trí tuyển dụng</a>
+                                    <br>
+                                    <small class="text-muted">
+                                        <span th:if="${job.workField != null and job.workField.tenLinhVuc != null}" th:text="${job.workField.tenLinhVuc}">Ngành nghề</span>
+                                        <span th:unless="${job.workField != null and job.workField.tenLinhVuc != null}">Chưa có ngành nghề</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <span th:if="${job.luong}" th:text="${job.luong} + ' VNĐ'">15,000,000 VNĐ</span>
+                                    <span th:unless="${job.luong}" class="text-muted">Thỏa thuận</span>
+                                </td>
+                                <td th:text="${job.soLuongTuyen != null} ? ${job.soLuongTuyen} : 'N/A'">N/A</td>
+                                <td th:text="${#temporals.format(job.ngayDang, 'dd/MM/yyyy')}">01/01/2023</td>
+                                <td th:text="${#temporals.format(job.ngayKetThucTuyenDung, 'dd/MM/yyyy')}">30/06/2023</td>
+                                <td>
+                                    <span class="badge bg-warning" th:if="${job.trangThaiDuyet == 'Chờ duyệt'}">Chờ duyệt</span>
+                                    <span class="badge bg-success" th:if="${job.trangThaiDuyet == 'Đã duyệt'}">Đã duyệt</span>
+                                    <span class="badge bg-danger" th:if="${job.trangThaiDuyet == 'Từ chối'}">Từ chối</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success" th:if="${job.trangThaiTinTuyen == 'Mở'}">Mở</span>
+                                    <span class="badge bg-danger" th:if="${job.trangThaiTinTuyen == 'Đã đóng'}">Đã đóng</span>
+                                    <span class="badge bg-warning" th:if="${job.trangThaiTinTuyen == 'Tạm dừng'}">Tạm dừng</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/employer/jobs/{id}/edit(id=${job.maCongViec})}" class="btn btn-sm btn-outline-primary">
+                                            Sửa
+                                        </a>
+                                        
+                                        <form th:action="@{/employer/jobs/{id}/delete(id=${job.maCongViec})}" 
+                                              method="post" style="display: inline;" 
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin tuyển dụng này?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="text-center">
+                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

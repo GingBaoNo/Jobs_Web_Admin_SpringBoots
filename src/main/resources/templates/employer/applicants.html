@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Ứng viên - Dashboard Nhà Tuyển Dụng</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>NTD Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Quản lý Ứng viên</h2>
+                <hr>
+            </div>
+        </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users fa-3x mb-3"></i>
+                                    <h3 class="card-title" th:text="${#lists.size(appliedJobs)}">0</h3>
+                                    <p class="card-text">Tổng số hồ sơ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-envelope fa-3x mb-3"></i>
+                                    <h3 class="card-title" id="new-applicants">0</h3>
+                                    <p class="card-text">Hồ sơ mới</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock fa-3x mb-3"></i>
+                                    <h3 class="card-title" id="pending-applicants">0</h3>
+                                    <p class="card-text">Hồ sơ đang chờ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                    <h3 class="card-title" id="approved-applicants">0</h3>
+                                    <p class="card-text">Hồ sơ đạt yêu cầu</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script th:inline="javascript">
+                        // Cập nhật số liệu thống kê sau khi trang được tải
+                        document.addEventListener('DOMContentLoaded', function() {
+                            updateStats();
+                        });
+
+                        function updateStats() {
+                            // Lấy tất cả các hàng trong bảng (trừ hàng tiêu đề)
+                            const rows = document.querySelectorAll('tbody tr:not(.d-none)');
+                            let totalApplicants = rows.length - 1; // Trừ đi hàng "không có dữ liệu" nếu tồn tại
+
+                            // Kiểm tra nếu hàng không có dữ liệu hiển thị
+                            if (document.querySelector('tbody tr[colspan="7"]')) {
+                                totalApplicants = 0;
+                            }
+
+                            // Nếu có dữ liệu, đếm thực tế
+                            if (totalApplicants === -1) {
+                                totalApplicants = document.querySelectorAll('tbody tr:not([colspan])').length;
+                            }
+
+                            // Đếm số hồ sơ mới (trạng thái "Đã gửi")
+                            let newApplicants = 0;
+                            let pendingApplicants = 0;
+                            let approvedApplicants = 0;
+
+                            // Lặp qua tất cả các hàng dữ liệu
+                            document.querySelectorAll('tbody tr:not([colspan])').forEach(function(row) {
+                                const statusCell = row.querySelector('td:nth-child(5) span');
+                                if (statusCell) {
+                                    const status = statusCell.textContent.trim();
+
+                                    if (status === 'Đã gửi') {
+                                        newApplicants++;
+                                        pendingApplicants++;
+                                    } else if (status === 'Đã xem') {
+                                        pendingApplicants++;
+                                    } else if (status === 'Tuyển dụng') {
+                                        approvedApplicants++;
+                                    }
+                                }
+                            });
+
+                            // Cập nhật các ô thống kê
+                            document.getElementById('new-applicants').textContent = newApplicants;
+                            document.getElementById('pending-applicants').textContent = pendingApplicants;
+                            document.getElementById('approved-applicants').textContent = approvedApplicants;
+                        }
+                    </script>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Danh sách ứng viên</h5>
+                                <form th:action="@{/employer/applicants}" method="get" class="d-flex">
+                                    <input type="text" name="search" th:value="${searchQuery}" class="form-control me-2" placeholder="Tìm kiếm ứng viên...">
+                                    <button type="submit" class="btn btn-outline-secondary">Tìm</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Ứng viên</th>
+                                            <th>Công việc</th>
+                                            <th>Ngày ứng tuyển</th>
+                                            <th>Trạng thái</th>
+                                            <th>CV</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="appliedJob : ${appliedJobs}">
+                                            <td th:text="${appliedJob.maUngTuyen}">ID</td>
+                                            <td th:text="${appliedJob.employee.tenHienThi}">Tên ứng viên</td>
+                                            <td th:text="${appliedJob.jobDetail.tieuDe}">Công việc</td>
+                                            <td th:text="${#temporals.format(appliedJob.ngayUngTuyen, 'dd/MM/yyyy')}">Ngày ứng tuyển</td>
+                                            <td>
+                                                <span th:if="${appliedJob.trangThaiUngTuyen == 'Tuyển dụng'}" class="badge bg-success" th:text="${appliedJob.trangThaiUngTuyen}">Trạng thái</span>
+                                                <span th:if="${appliedJob.trangThaiUngTuyen == 'Phỏng vấn'}" class="badge bg-warning text-dark" th:text="${appliedJob.trangThaiUngTuyen}">Trạng thái</span>
+                                                <span th:if="${appliedJob.trangThaiUngTuyen == 'Từ chối'}" class="badge bg-danger" th:text="${appliedJob.trangThaiUngTuyen}">Trạng thái</span>
+                                                <span th:if="${appliedJob.trangThaiUngTuyen == 'Đã xem'}" class="badge bg-secondary" th:text="${appliedJob.trangThaiUngTuyen}">Trạng thái</span>
+                                                <span th:unless="${appliedJob.trangThaiUngTuyen == 'Tuyển dụng' or appliedJob.trangThaiUngTuyen == 'Phỏng vấn' or appliedJob.trangThaiUngTuyen == 'Từ chối' or appliedJob.trangThaiUngTuyen == 'Đã xem'}" class="badge bg-info" th:text="${appliedJob.trangThaiUngTuyen}">Trạng thái</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${appliedJob.urlCvUngTuyen != null}">
+                                                    <a th:href="${appliedJob.urlCvUngTuyen}" target="_blank" class="btn btn-sm btn-outline-primary">Xem CV</a>
+                                                </span>
+                                                <span th:unless="${appliedJob.urlCvUngTuyen != null}" class="text-muted">Không có</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1"
+                                                        th:attr="data-id=${appliedJob.maUngTuyen}, data-name=${appliedJob.employee.tenHienThi}, data-job=${appliedJob.jobDetail.tieuDe}, data-status=${appliedJob.trangThaiUngTuyen}"
+                                                        onclick="openEditStatusModalFromData(this)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <a th:href="@{/employer/applicants/{id}/cv(id=${appliedJob.maUngTuyen})}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(appliedJobs)}">
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                                <p>Không tìm thấy ứng viên nào</p>
+                                                <p th:if="${searchQuery != ''}" th:text="'Không tìm thấy kết quả cho: ' + ${searchQuery}"></p>
+                                                <p th:unless="${searchQuery != ''}">Chưa có ứng viên nào ứng tuyển vào công ty bạn</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Footer -->
+                <footer class="bg-dark text-light mt-5 py-4">
+                    <div class="container">
+                        <div class="text-center">
+                            <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+                        </div>
+                    </div>
+                </footer>
+
+                <!-- Bootstrap 5 JS -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+
+    <!-- Edit Status Modal -->
+    <div class="modal fade" id="editStatusModal" tabindex="-1" aria-labelledby="editStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStatusModalLabel">Cập nhật trạng thái ứng viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-status-form">
+                        <input type="hidden" id="application-id">
+                        <div class="mb-3">
+                            <label for="applicant-name" class="form-label">Tên ứng viên</label>
+                            <input type="text" class="form-control" id="applicant-name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="job-title" class="form-label">Công việc</label>
+                            <input type="text" class="form-control" id="job-title" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="status">
+                                <option value="Đã gửi">Đã gửi</option>
+                                <option value="Đã xem">Đã xem</option>
+                                <option value="Phỏng vấn">Phỏng vấn</option>
+                                <option value="Tuyển dụng">Tuyển dụng</option>
+                                <option value="Từ chối">Từ chối</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
+                            <input type="number" class="form-control" id="rating" min="1" max="5" value="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Tuyển dụng':
+                    return 'bg-success';
+                case 'Phỏng vấn':
+                    return 'bg-warning text-dark';
+                case 'Từ chối':
+                    return 'bg-danger';
+                case 'Đã xem':
+                    return 'bg-secondary';
+                default:
+                    return 'bg-info';
+            }
+        }
+
+        function openEditStatusModal(id, name, job, currentStatus) {
+            document.getElementById('application-id').value = id;
+            document.getElementById('applicant-name').value = name;
+            document.getElementById('job-title').value = job;
+            document.getElementById('status').value = currentStatus;
+
+            // Reset rating
+            document.getElementById('rating').value = 0;
+
+            const modal = new bootstrap.Modal(document.getElementById('editStatusModal'));
+            modal.show();
+        }
+
+        function openEditStatusModalFromData(button) {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            const job = button.getAttribute('data-job');
+            const status = button.getAttribute('data-status');
+
+            openEditStatusModal(id, name, job, status);
+        }
+
+        function updateApplicationStatus() {
+            const id = document.getElementById('application-id').value;
+            const status = document.getElementById('status').value;
+            const rating = document.getElementById('rating').value || null;
+
+            // Gửi form để cập nhật trạng thái
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/employer/applicants/${id}/cv`;
+
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
+            statusInput.value = status;
+            form.appendChild(statusInput);
+
+            if (rating) {
+                const ratingInput = document.createElement('input');
+                ratingInput.type = 'hidden';
+                ratingInput.name = 'rating';
+                ratingInput.value = rating;
+                form.appendChild(ratingInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

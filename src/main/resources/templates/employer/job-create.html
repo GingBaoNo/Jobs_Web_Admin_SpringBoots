@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Đăng tin tuyển dụng'">Đăng tin tuyển dụng</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase me-2"></i>NTD Dashboard
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 th:text="${title}">Đăng tin tuyển dụng</h2>
+                <hr>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
+                    error message
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Tạo mới tin tuyển dụng</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:object="${job}" method="post" th:action="@{/employer/job/create}">
+                            
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="tieuDe" class="form-label">Tiêu đề công việc <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="tieuDe" th:field="*{tieuDe}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="chiTiet" class="form-label">Mô tả công việc <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="chiTiet" rows="5" th:field="*{chiTiet}" required></textarea>
+                                        <div class="form-text">Mô tả chi tiết về công việc</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="yeuCauCongViec" class="form-label">Yêu cầu công việc <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="yeuCauCongViec" rows="3" th:field="*{yeuCauCongViec}" required></textarea>
+                                        <div class="form-text">Mô tả các yêu cầu cụ thể cho ứng viên</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="quyenLoi" class="form-label">Quyền lợi <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="quyenLoi" rows="3" th:field="*{quyenLoi}" required></textarea>
+                                        <div class="form-text">Mô tả các quyền lợi mà ứng viên sẽ nhận được</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="workField" class="form-label">Ngành nghề <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="workField" th:field="*{workField}" required>
+                                            <option value="">Chọn ngành nghề</option>
+                                            <option th:each="field : ${workFields}" 
+                                                    th:value="${field.maLinhVuc}" 
+                                                    th:text="${field.tenLinhVuc}"
+                                                    th:selected="${job.workField != null and job.workField.maLinhVuc == field.maLinhVuc}">Ngành nghề</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="workType" class="form-label">Hình thức làm việc <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="workType" th:field="*{workType}" required>
+                                            <option value="">Chọn hình thức</option>
+                                            <option th:each="type : ${workTypes}" 
+                                                    th:value="${type.maHinhThuc}" 
+                                                    th:text="${type.tenHinhThuc}"
+                                                    th:selected="${job.workType != null and job.workType.maHinhThuc == type.maHinhThuc}">Hình thức</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="luong" class="form-label">Mức lương</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="luong" th:field="*{luong}">
+                                            <span class="input-group-text">VNĐ</span>
+                                        </div>
+                                        <div class="form-text">Bỏ trống nếu lương thỏa thuận</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="loaiLuong" class="form-label">Loại lương</label>
+                                        <select class="form-select" id="loaiLuong" th:field="*{loaiLuong}">
+                                            <option value="">Chọn loại lương</option>
+                                            <option value="Theo giờ">Theo giờ</option>
+                                            <option value="Theo ngày">Theo ngày</option>
+                                            <option value="Theo tháng">Theo tháng</option>
+                                            <option value="Theo dự án">Theo dự án</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="soLuongTuyen" class="form-label">Số lượng tuyển</label>
+                                        <input type="number" class="form-control" id="soLuongTuyen" th:field="*{soLuongTuyen}" min="1" value="1">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ngayKetThucTuyenDung" class="form-label">Hạn nộp hồ sơ <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="ngayKetThucTuyenDung" th:field="*{ngayKetThucTuyenDung}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="gioiTinhYeuCau" class="form-label">Giới tính yêu cầu</label>
+                                        <select class="form-select" id="gioiTinhYeuCau" th:field="*{gioiTinhYeuCau}">
+                                            <option value="">Không yêu cầu</option>
+                                            <option value="Nam">Nam</option>
+                                            <option value="Nữ">Nữ</option>
+                                            <option value="Khác">Khác</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ngayLamViec" class="form-label">Ngày làm việc</label>
+                                        <select class="form-select" id="ngayLamViec" th:field="*{ngayLamViec}">
+                                            <option value="">Chọn ngày làm việc</option>
+                                            <option value="Thứ hai - Thứ sáu">Thứ hai - Thứ sáu</option>
+                                            <option value="Thứ hai - Thứ bảy">Thứ hai - Thứ bảy</option>
+                                            <option value="24/7">24/7</option>
+                                            <option value="Ca linh hoạt">Ca linh hoạt</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="thoiHanLamViec" class="form-label">Thời hạn làm việc</label>
+                                        <select class="form-select" id="thoiHanLamViec" th:field="*{thoiHanLamViec}">
+                                            <option value="">Chọn thời hạn</option>
+                                            <option value="Dài hạn">Dài hạn</option>
+                                            <option value="Ngắn hạn">Ngắn hạn</option>
+                                            <option value="Theo dự án">Theo dự án</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="gioBatDau" class="form-label">Giờ bắt đầu làm việc</label>
+                                        <input type="time" class="form-control" id="gioBatDau" th:field="*{gioBatDau}">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="gioKetThuc" class="form-label">Giờ kết thúc làm việc</label>
+                                        <input type="time" class="form-control" id="gioKetThuc" th:field="*{gioKetThuc}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/employer/jobs}" class="btn btn-secondary me-md-2">Hủy</a>
+                                <button type="submit" class="btn btn-success">Đăng tin tuyển dụng</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="text-center">
+                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default end date to 30 days from today
+            const today = new Date();
+            const nextMonth = new Date(today);
+            nextMonth.setDate(today.getDate() + 30);
+            
+            // Format to YYYY-MM-DD
+            const formattedDate = nextMonth.toISOString().split('T')[0];
+            
+            const endDateInput = document.getElementById('ngayKetThucTuyenDung');
+            if (!endDateInput.value) {
+                endDateInput.value = formattedDate;
+            }
+        });
+    </script>
+</body>
+</html>

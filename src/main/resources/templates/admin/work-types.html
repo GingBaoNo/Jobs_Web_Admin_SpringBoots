@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Quản lý hình thức làm việc'">Quản lý hình thức làm việc</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase me-2"></i>Admin Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/users}">Người dùng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/companies}">Công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/jobs/pending}">Tin chờ duyệt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/jobs}">Tất cả tin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/roles}">Vai trò</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/work-fields}">Ngành nghề</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/admin/work-types}">Hình thức làm việc</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/">Trang chủ</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 th:text="${title}">Quản lý hình thức làm việc</h2>
+                <hr>
+            </div>
+        </div>
+
+        <!-- Form tìm kiếm và thêm mới hình thức làm việc -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Thêm mới hình thức làm việc</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/work-types/create}" method="post">
+                            <div class="mb-3">
+                                <label for="tenHinhThuc" class="form-label">Tên hình thức làm việc</label>
+                                <input type="text" class="form-control" id="tenHinhThuc" name="tenHinhThuc" placeholder="Nhập tên hình thức làm việc" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm mới</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Tìm kiếm hình thức làm việc</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/work-types}" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" th:value="${searchQuery}" placeholder="Tìm kiếm hình thức làm việc...">
+                                <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách hình thức làm việc -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Danh sách hình thức làm việc</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên hình thức làm việc</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="workType : ${workTypes}">
+                                        <td th:text="${workType.maHinhThuc}">1</td>
+                                        <td th:text="${workType.tenHinhThuc}">Toàn thời gian</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#editModal' + ${workType.maHinhThuc}"
+                                                    th:data-type-id="${workType.maHinhThuc}"
+                                                    th:data-type-name="${workType.tenHinhThuc}"
+                                                    onclick="loadEditFormFromData(this)">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </button>
+                                            <form th:action="@{/admin/work-types/{id}/delete(id=${workType.maHinhThuc})}"
+                                                  method="post"
+                                                  style="display: inline;"
+                                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa hình thức làm việc này không?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div th:if="${workTypes.empty}" class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Chưa có hình thức làm việc nào được tạo</p>
+                                <p th:if="${searchQuery != ''}" th:text="'Không tìm thấy kết quả cho: ' + ${searchQuery}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals for editing -->
+    <div th:each="workType : ${workTypes}" class="modal fade" th:id="'editModal' + ${workType.maHinhThuc}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật hình thức làm việc</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/work-types/{id}/update(id=${workType.maHinhThuc})}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editTenHinhThuc" class="form-label">Tên hình thức làm việc</label>
+                            <input type="text" class="form-control" th:id="'editTenHinhThuc' + ${workType.maHinhThuc}"
+                                   th:name="'tenHinhThuc'" th:value="${workType.tenHinhThuc}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="text-center">
+                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadEditFormFromData(button) {
+            const id = button.getAttribute('data-type-id');
+            const name = button.getAttribute('data-type-name');
+            const input = document.getElementById('editTenHinhThuc' + id);
+            if (input) {
+                input.value = name;
+            }
+        }
+        function loadEditForm(id, tenHinhThuc) {
+            const input = document.getElementById('editTenHinhThuc' + id);
+            if (input) {
+                input.value = tenHinhThuc;
+            }
+        }
+    </script>
+</body>
+</html>

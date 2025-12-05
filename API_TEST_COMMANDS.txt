@@ -1,0 +1,24 @@
+# API Test Commands
+
+## Test Commands for Company API
+
+# Get all companies
+curl -X GET "http://localhost:8080/api/v1/companies"
+
+# Get verified companies only
+curl -X GET "http://localhost:8080/api/v1/companies/verified"
+
+# Search companies by keyword
+curl -X GET "http://localhost:8080/api/v1/companies/search?keyword=tech"
+
+# Get companies with pagination
+curl -X GET "http://localhost:8080/api/v1/companies/page?page=0&size=10&sortBy=maCongTy"
+
+# Get verified companies with pagination
+curl -X GET "http://localhost:8080/api/v1/companies/verified/page?page=0&size=10&sortBy=maCongTy"
+
+# Get specific company by ID
+curl -X GET "http://localhost:8080/api/v1/companies/1"
+
+# Get company with its jobs
+curl -X GET "http://localhost:8080/api/v1/companies/1/jobs"

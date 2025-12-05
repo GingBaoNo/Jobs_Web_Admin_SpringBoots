@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Quản lý công ty'">Quản lý công ty</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase me-2"></i>Admin Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/users}">Người dùng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/admin/companies}">Công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/jobs/pending}">Tin chờ duyệt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/jobs}">Tất cả tin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/roles}">Vai trò</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/work-fields}">Ngành nghề</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/work-types}">Hình thức làm việc</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/">Trang chủ</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 th:text="${title}">Quản lý công ty</h2>
+                <hr>
+            </div>
+        </div>
+
+        <!-- Tabs for pending and verified companies -->
+        <ul class="nav nav-tabs mb-4" id="companyTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Công ty chờ duyệt <span class="badge bg-warning" th:text="${#lists.size(pendingCompanies)}"></span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="verified-tab" data-bs-toggle="tab" data-bs-target="#verified" type="button" role="tab">Công ty đã duyệt <span class="badge bg-success" th:text="${#lists.size(verifiedCompanies)}"></span></button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="companyTabContent">
+            <!-- Pending Companies Tab -->
+            <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-12 text-end">
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Cập nhật danh sách
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên công ty</th>
+                                        <th>Người đại diện</th>
+                                        <th>Mã số thuế</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Liên hệ</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="company : ${pendingCompanies}">
+                                        <td th:text="${company.maCongTy}">ID</td>
+                                        <td th:text="${company.tenCongTy}">Tên công ty</td>
+                                        <td th:text="${company.tenNguoiDaiDien}">Người đại diện</td>
+                                        <td th:text="${company.maSoThue}">Mã số thuế</td>
+                                        <td th:text="${company.diaChi}">Địa chỉ</td>
+                                        <td th:text="${company.lienHeCty}">Liên hệ</td>
+                                        <td th:text="${#dates.format(company.ngayTao, 'dd/MM/yyyy')}">Ngày tạo</td>
+                                        <td>
+                                            <span class="badge bg-warning">Chưa xác thực</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.lienHeCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
+                                                    <i class="fas fa-eye"></i> Xem
+                                                </button>
+                                                <form th:action="@{/admin/companies/{id}/approve(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn duyệt công ty này?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-check"></i> Duyệt
+                                                    </button>
+                                                </form>
+                                                <form th:action="@{/admin/companies/{id}/reject(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn từ chối công ty này?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-times"></i> Từ chối
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(pendingCompanies)}">
+                                        <td colspan="9" class="text-center">Không có công ty nào đang chờ duyệt</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination for pending companies -->
+                        <nav aria-label="Pending companies pagination" th:if="${#lists.size(pendingCompanies) > 0}">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Trước</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verified Companies Tab -->
+            <div class="tab-pane fade" id="verified" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-12 text-end">
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Cập nhật danh sách
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên công ty</th>
+                                        <th>Người đại diện</th>
+                                        <th>Mã số thuế</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Liên hệ</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="company : ${verifiedCompanies}">
+                                        <td th:text="${company.maCongTy}">ID</td>
+                                        <td th:text="${company.tenCongTy}">Tên công ty</td>
+                                        <td th:text="${company.tenNguoiDaiDien}">Người đại diện</td>
+                                        <td th:text="${company.maSoThue}">Mã số thuế</td>
+                                        <td th:text="${company.diaChi}">Địa chỉ</td>
+                                        <td th:text="${company.lienHeCty}">Liên hệ</td>
+                                        <td th:text="${#dates.format(company.ngayTao, 'dd/MM/yyyy')}">Ngày tạo</td>
+                                        <td>
+                                            <span class="badge bg-success">Đã xác thực</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.lienHeCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
+                                                    <i class="fas fa-eye"></i> Xem
+                                                </button>
+                                                <form th:action="@{/admin/companies/{id}/reject(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy xác thực công ty này?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-times"></i> Hủy xác thực
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(verifiedCompanies)}">
+                                        <td colspan="9" class="text-center">Không có công ty nào đã được xác thực</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination for verified companies -->
+                        <nav aria-label="Verified companies pagination" th:if="${#lists.size(verifiedCompanies) > 0}">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Trước</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- View Company Modal -->
+    <div class="modal fade" id="viewCompanyModal" tabindex="-1" aria-labelledby="viewCompanyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewCompanyModalLabel">Chi tiết công ty</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Thông tin cơ bản</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>ID công ty:</strong></td>
+                                    <td id="modalCompanyId">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tên công ty:</strong></td>
+                                    <td id="modalCompanyName">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Người đại diện:</strong></td>
+                                    <td id="modalRepresentative">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mã số thuế:</strong></td>
+                                    <td id="modalTaxId">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Địa chỉ:</strong></td>
+                                    <td id="modalAddress">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Liên hệ:</strong></td>
+                                    <td id="modalContact">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Thông tin bổ sung</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Ngày tạo:</strong></td>
+                                    <td id="modalDateCreated">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trạng thái:</strong></td>
+                                    <td><span id="modalStatus" class="badge">-</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="text-center">
+                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function viewCompanyDetails(id, name, representative, taxId, address, contact) {
+            document.getElementById('modalCompanyId').textContent = id;
+            document.getElementById('modalCompanyName').textContent = name;
+            document.getElementById('modalRepresentative').textContent = representative;
+            document.getElementById('modalTaxId').textContent = taxId;
+            document.getElementById('modalAddress').textContent = address;
+            document.getElementById('modalContact').textContent = contact;
+            document.getElementById('modalDateCreated').textContent = new Date().toLocaleDateString('vi-VN');
+            // We can't determine status from parameters, so will default to 'Chờ duyệt'
+            document.getElementById('modalStatus').textContent = 'Chờ duyệt';
+            document.getElementById('modalStatus').className = 'badge bg-warning';
+        }
+    </script>
+</body>
+</html>
