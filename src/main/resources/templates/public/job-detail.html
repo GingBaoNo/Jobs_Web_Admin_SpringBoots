@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Chi tiết công việc'">Chi tiết công việc</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <div th:replace="~{layout :: nav}"></div>
+
+    <main class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0" th:text="${job.tieuDe}">Tiêu đề công việc</h2>
+            </div>
+            <div class="card-body">
+                <!-- Thông tin cơ bản -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Công ty:</strong> <span th:text="${job.company.tenCongTy}">Tên công ty</span></p>
+                        <p><strong>Ngành nghề:</strong> <span th:text="${job.workField.tenLinhVuc}">Ngành nghề</span></p>
+                        <p><strong>Hình thức:</strong> <span th:text="${job.workType.tenHinhThuc}">Hình thức</span></p>
+                        <p><strong>Lương:</strong> 
+                            <span th:if="${job.luong != null}" th:text="${#numbers.formatInteger(job.luong, 0) + ' VNĐ'}">Lương</span>
+                            <span th:unless="${job.luong != null}">Thương lượng</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Địa điểm:</strong> 
+                            <span th:each="location : ${job.company.jobLocations}" th:text="${location.diaDiem.tenDiaDiem + ', '}"></span>
+                        </p>
+                        <p><strong>Giới tính:</strong> <span th:text="${job.gioiTinhYeuCau}">Giới tính</span></p>
+                        <p><strong>Số lượng:</strong> <span th:text="${job.soLuongTuyen}">Số lượng</span></p>
+                        <p><strong>Hạn nộp hồ sơ:</strong> <span th:text="${#dates.format(job.ngayKetThucTuyenDung, 'dd/MM/yyyy')}">Hạn nộp</span></p>
+                    </div>
+                </div>
+
+                <!-- Mô tả công việc -->
+                <div class="mb-4">
+                    <h5><strong>Mô tả công việc:</strong></h5>
+                    <div class="border p-3 bg-light" th:utext="${job.chiTiet}">Mô tả công việc sẽ hiển thị ở đây</div>
+                </div>
+
+                <!-- Yêu cầu công việc -->
+                <div class="mb-4">
+                    <h5><strong>Yêu cầu công việc:</strong></h5>
+                    <div class="border p-3 bg-light" th:utext="${job.yeuCauCongViec}">Yêu cầu công việc sẽ hiển thị ở đây</div>
+                </div>
+
+                <!-- Quyền lợi -->
+                <div class="mb-4">
+                    <h5><strong>Quyền lợi:</strong></h5>
+                    <div class="border p-3 bg-light" th:utext="${job.quyenLoi}">Quyền lợi sẽ hiển thị ở đây</div>
+                </div>
+
+                <!-- Các thông tin khác -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Thời gian bắt đầu:</strong> <span th:text="${job.gioBatDau}">Giờ bắt đầu</span></p>
+                        <p><strong>Thời gian kết thúc:</strong> <span th:text="${job.gioKetThuc}">Giờ kết thúc</span></p>
+                        <p><strong>Ngày làm việc:</strong> <span th:text="${job.ngayLamViec}">Ngày làm việc</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Có thể thương lượng giờ:</strong> <span th:text="${job.coTheThuongLuongGio}">Có thể thương lượng</span></p>
+                        <p><strong>Có thể thương lượng ngày:</strong> <span th:text="${job.coTheThuongLuongNgay}">Có thể thương lượng</span></p>
+                        <p><strong>Thời hạn làm việc:</strong> <span th:text="${job.thoiHanLamViec}">Thời hạn làm việc</span></p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="location.href='/apply/' + [[${job.maCongViec}]]">Ứng tuyển ngay</button>
+                    <button type="button" class="btn btn-outline-primary btn-lg" onclick="location.href='/jobs'">Trở lại danh sách</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{layout :: footer}"></div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
