@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhà tuyển dụng - Trò chuyện</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>NTD Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/employer/chat}"><i class="fas fa-comments"></i> Trò chuyện</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Trò chuyện</h2>
+                
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <div class="chat-container">
+                            <!-- Danh sách người dùng -->
+                            <div class="chat-sidebar">
+                                <ul class="nav nav-tabs" id="chatTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="admins-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button" role="tab">Quản trị viên</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="applicants-tab" data-bs-toggle="tab" data-bs-target="#applicants" type="button" role="tab">Ứng viên</button>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content scrollable-users" id="chatTabsContent">
+                                    <!-- Danh sách Admin -->
+                                    <div class="tab-pane fade show active" id="admins" role="tabpanel">
+                                        <div class="p-3 border-bottom">
+                                            <h5>Quản trị viên</h5>
+                                        </div>
+                                        <div id="admin-list">
+                                            <div th:each="adminWithMessage : ${adminUsers}" class="chat-user" th:data-userid="${adminWithMessage.user.maNguoiDung}" onclick="handleUserClick(this, true)">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <div th:text="${adminWithMessage.user.tenHienThi}"></div>
+                                                        <small class="text-muted" th:text="${adminWithMessage.lastMessage}"></small>
+                                                    </div>
+                                                    <div>
+                                                        <small th:if="${adminWithMessage.unread}" class="unread-badge">!</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Danh sách Ứng viên -->
+                                    <div class="tab-pane fade" id="applicants" role="tabpanel">
+                                        <div class="p-3 border-bottom">
+                                            <h5>Ứng viên</h5>
+                                        </div>
+                                        <div id="applicant-list">
+                                            <div th:each="applicantWithMessage : ${applicantUsers}" class="chat-user" th:data-userid="${applicantWithMessage.user.maNguoiDung}" onclick="handleUserClick(this, false)">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <div th:text="${applicantWithMessage.user.tenHienThi}"></div>
+                                                        <small class="text-muted" th:text="${applicantWithMessage.lastMessage}"></small>
+                                                    </div>
+                                                    <div>
+                                                        <small th:if="${applicantWithMessage.unread}" class="unread-badge">!</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vùng trò chuyện -->
+                            <div class="chat-messages" id="chat-area">
+                                <div class="chat-header" id="chat-header" style="display: none;">
+                                    <span id="current-chat-user">Chọn người để trò chuyện</span>
+                                </div>
+                                <div class="p-3 flex-grow-1 overflow-auto" id="messages-container">
+                                    <div class="text-center text-muted" id="select-chat-prompt">
+                                        <i class="fas fa-comments fa-3x mb-3"></i>
+                                        <p>Chọn một người dùng để bắt đầu trò chuyện</p>
+                                    </div>
+                                </div>
+                                <div class="message-input p-3" id="message-input-container" style="display: none;">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="message-input" placeholder="Nhập tin nhắn..." onkeydown="if(event.key === 'Enter') sendMessage()">
+                                        <button class="btn btn-primary" type="button" onclick="sendMessage()">Gửi</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>
+                    <p>Giúp kết nối nhà tuyển dụng và người tìm việc một cách hiệu quả.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light">Trang chủ</a></li>
+                        <li><a href="/jobs" class="text-light">Việc làm</a></li>
+                        <li><a href="/companies" class="text-light">Công ty</a></li>
+                        <li><a href="#" class="text-light">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên hệ</h5>
+                    <p><i class="fas fa-envelope me-2"></i> info@timviec.com</p>
+                    <p><i class="fas fa-phone me-2"></i> 0123 456 789</p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="text-center">
+                <p>&copy; 2025 Hệ Thống Tìm Kiếm Việc Làm. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SocketJS and STOMP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <!-- Chat JavaScript -->
+    <script th:src="@{/js/chat.js}"></script>
+    <script th:inline="javascript">
+        function handleUserClick(element, isAdmin) {
+            const userId = element.getAttribute('data-userid');
+            chatApp.selectChat(parseInt(userId), isAdmin || false);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentUser = /*[[${currentUser}]]*/ null;
+            // Truy cập dữ liệu currentUser qua biến ẩn
+            currentUser = {
+                maNguoiDung: /*[[${currentUser.maNguoiDung}]]*/ null,
+                taiKhoan: /*[[${currentUser.taiKhoan}]]*/ null,
+                tenHienThi: /*[[${currentUser.tenHienThi}]]*/ null,
+                lienHe: /*[[${currentUser.lienHe}]]*/ null,
+                vaiTro: {
+                    tenVaiTro: /*[[${currentUser.role.tenVaiTro}]]*/ null
+                }
+            };
+            chatApp.init(currentUser);
+
+            // Khôi phục phiên trò chuyện từ localStorage nếu có
+            var savedChatUserId = localStorage.getItem('currentChatUserId');
+            var savedChatIsAdmin = localStorage.getItem('currentChatIsAdmin') === 'true';
+            
+            if (savedChatUserId) {
+                // Khôi phục phiên trò chuyện đã lưu
+                chatApp.selectChat(parseInt(savedChatUserId), savedChatIsAdmin);
+            } else {
+                // Nếu không có phiên lưu, kiểm tra từ URL
+                var urlParams = new URLSearchParams(window.location.search);
+                var userId = urlParams.get('userId');
+                if (userId) {
+                    // Xác định loại người dùng từ dữ liệu được truyền vào
+                    // Kiểm tra xem userId có trong danh sách admin không
+                    var adminUsers = /*[[${adminUsers}]]*/ [];
+                    var isAdmin = adminUsers.some(user => user.user.maNguoiDung === parseInt(userId));
+                    chatApp.selectChat(parseInt(userId), isAdmin);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

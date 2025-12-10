@@ -74,6 +74,9 @@
                             <li sec:authorize="hasRole('NTD')">
                                 <a class="dropdown-item" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
                             </li>
+                            <li sec:authorize="hasRole('NTD')">
+                                <a class="dropdown-item" th:href="@{/employer/chat}">Trò chuyện</a>
+                            </li>
                             
                             <!-- Nếu là Admin -->
                             <li sec:authorize="hasRole('ADMIN')">
@@ -84,6 +87,9 @@
                             </li>
                             <li sec:authorize="hasRole('ADMIN')">
                                 <a class="dropdown-item" th:href="@{/admin/companies}">Quản lý công ty</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/admin/chat}">Trò chuyện</a>
                             </li>
                             
                             <!-- Nếu là NV -->

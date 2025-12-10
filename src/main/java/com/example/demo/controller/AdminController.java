@@ -6,12 +6,14 @@ import com.example.demo.entity.Company;
 import com.example.demo.entity.WorkField;
 import com.example.demo.entity.WorkType;
 import com.example.demo.entity.JobDetail;
+import com.example.demo.entity.Message;
 import com.example.demo.service.RoleService;
 import com.example.demo.service.UserService;
 import com.example.demo.service.CompanyService;
 import com.example.demo.service.WorkFieldService;
 import com.example.demo.service.WorkTypeService;
 import com.example.demo.service.JobDetailService;
+import com.example.demo.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,9 +50,12 @@ public class AdminController {
     @Autowired
     private JobDetailService jobDetailService;
 
+    @Autowired
+    private MessageService messageService;
+
     // Trang dashboard của admin
     @GetMapping("/admin/dashboard")
-    public String adminDashboard(Model model) {
+    public String adminDashboard(Authentication authentication, Model model) {
         // Lấy thông tin vai trò NTD và NV
         Optional<Role> ntdRoleOpt = roleService.getRoleByTenVaiTro("NTD");
         Optional<Role> nvRoleOpt = roleService.getRoleByTenVaiTro("NV");
@@ -83,6 +89,14 @@ public class AdminController {
         model.addAttribute("approvedJobs", approvedJobs);
         model.addAttribute("companies", companies);
         model.addAttribute("recentJobs", recentJobs);
+        // Lấy số lượng tin nhắn chưa đọc (nếu có)
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
+            User user = userService.getUserByTaiKhoan(authentication.getName()).orElse(null);
+            if (user != null) {
+                List<Message> unreadMessages = messageService.getUnreadMessagesByReceiver(user);
+                model.addAttribute("totalMessages", unreadMessages.size());
+            }
+        }
         model.addAttribute("title", "Bảng điều khiển Admin");
         return "admin/dashboard";
     }
