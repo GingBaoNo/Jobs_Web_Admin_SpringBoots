@@ -28,4 +28,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // Tìm các ứng viên đã ứng tuyển vào công ty của nhà tuyển dụng cụ thể
     @Query("SELECT DISTINCT aj.employee FROM AppliedJob aj WHERE aj.jobDetail.company.user.maNguoiDung = :employerId")
     List<User> findApplicantsByEmployer(@Param("employerId") Integer employerId);
+
+    // Kiểm tra xem người dùng đã ứng tuyển cho công ty của NTD cụ thể chưa
+    @Query("SELECT CASE WHEN COUNT(aj) > 0 THEN true ELSE false END FROM AppliedJob aj WHERE aj.employee.maNguoiDung = :applicantId AND aj.jobDetail.company.user.maNguoiDung = :employerId")
+    boolean hasUserAppliedToEmployer(@Param("applicantId") Integer applicantId, @Param("employerId") Integer employerId);
+
+    // Lấy danh sách NTD mà người dùng đã ứng tuyển vào công ty
+    @Query("SELECT DISTINCT aj.jobDetail.company.user FROM AppliedJob aj WHERE aj.employee.maNguoiDung = :userId")
+    List<User> findEmployersThatUserApplied(@Param("userId") Integer userId);
 }
