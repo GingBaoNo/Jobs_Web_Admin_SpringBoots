@@ -48,6 +48,9 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/admin/work-types}">Hình thức làm việc</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/chat}"><i class="fas fa-comments"></i> Trò chuyện</a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">
@@ -239,10 +242,31 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light mt-5 py-4">
+    <footer class="bg-dark text-light py-4 mt-5">
         <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>
+                    <p>Giúp kết nối nhà tuyển dụng và người tìm việc một cách hiệu quả.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light">Trang chủ</a></li>
+                        <li><a href="/jobs" class="text-light">Việc làm</a></li>
+                        <li><a href="/companies" class="text-light">Công ty</a></li>
+                        <li><a href="#" class="text-light">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên hệ</h5>
+                    <p><i class="fas fa-envelope me-2"></i> info@timviec.com</p>
+                    <p><i class="fas fa-phone me-2"></i> 0123 456 789</p>
+                </div>
+            </div>
+            <hr class="my-3">
             <div class="text-center">
-                <p>2025 Hệ Thống Tìm Kiếm Việc Làm</p>
+                <p>&copy; 2025 Hệ Thống Tìm Kiếm Việc Làm. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
     </footer>
