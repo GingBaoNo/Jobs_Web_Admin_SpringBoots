@@ -13,15 +13,47 @@ var chatApp = {
     connect: function() {
         var socket = new SockJS('/ws');
         this.stompClient = Stomp.over(socket);
-        
+
+        // Lấy thông tin người dùng hiện tại để đảm bảo kênh đúng
+        var self = this;
         this.stompClient.connect({}, function(frame) {
             console.log('Connected: ' + frame);
-            
+
             // Đăng ký nhận tin nhắn cho người dùng hiện tại
+            // Cấu trúc kênh: /user/queue/messages
             chatApp.stompClient.subscribe('/user/queue/messages', function(messageOutput) {
+                console.log('WebSocket nhận được tin nhắn:', messageOutput.body);
                 chatApp.showMessageOutput(JSON.parse(messageOutput.body));
             });
+
+            // Đăng ký nhận thông báo reload
+            chatApp.stompClient.subscribe('/user/queue/reload', function(reloadOutput) {
+                console.log('WebSocket nhận được yêu cầu reload:', reloadOutput.body);
+                // Load lại trang ngay lập tức khi nhận được thông báo reload
+                location.reload();
+            });
+
+            // Thêm log để theo dõi
+            console.log('Đã đăng ký kênh nhận tin nhắn: /user/queue/messages');
+            console.log('Đã đăng ký kênh nhận reload: /user/queue/reload');
         });
+
+        // Ghi lại thời gian cuối cùng nhận tin nhắn
+        this.lastMessageTime = Date.now();
+
+        // Cơ chế kiểm tra định kỳ nếu không nhận được tin nhắn qua WebSocket
+        setInterval(function() {
+            // Nếu không nhận tin nhắn qua WebSocket trong 10 giây, load lại trang
+            if (Date.now() - self.lastMessageTime > 10000 && self.currentChatUserId) {
+                console.log('Không nhận được tin nhắn trong 10s, tiến hành load lại trang');
+                location.reload();
+            }
+        }, 3000); // Kiểm tra mỗi 3 giây
+    },
+
+    // Cập nhật thời gian nhận tin nhắn cuối cùng
+    updateLastMessageTime: function() {
+        this.lastMessageTime = Date.now();
     },
 
     sendMessage: function() {
@@ -31,48 +63,42 @@ var chatApp = {
         }
 
         var chatMessage = {
-            sender: this.currentUser.maNguoiDung + "",
-            receiver: this.currentChatUserId + "",
+            senderId: this.currentUser.maNguoiDung,
+            receiverId: this.currentChatUserId,
             content: messageContent.trim(),
             type: 'CHAT',
             senderUsername: this.currentUser.taiKhoan,
             receiverUsername: document.getElementById('current-chat-user').textContent
         };
 
-        // Thêm tin nhắn vào giao diện ngay lập tức trước khi gửi
-        this.addMessageToUI(chatMessage.content, true);
+        // Cập nhật thời gian gửi tin nhắn
+        this.updateLastMessageTime();
+
+        // Gửi tin nhắn qua WebSocket với xử lý lỗi
+        try {
+            this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        } catch (error) {
+            console.error('Lỗi khi gửi tin nhắn qua WebSocket:', error);
+        }
+
         // Xóa ô nhập tin nhắn
         document.getElementById('message-input').value = '';
 
-        // Gửi tin nhắn qua WebSocket
-        this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        // Load lại trang sau khi gửi tin nhắn để đảm bảo cập nhật từ database
+        setTimeout(function() {
+            location.reload();
+        }, 150); // Giảm thời gian chờ
     },
 
     showMessageOutput: function(messageOutput) {
-        // Kiểm tra xem tin nhắn có liên quan đến cuộc trò chuyện hiện tại không
-        if (messageOutput.sender === this.currentUser.maNguoiDung + "" ||
-            messageOutput.receiver === this.currentUser.maNguoiDung + "") {
+        console.log('Nhận được tin nhắn từ WebSocket:', messageOutput);
+        // Cập nhật thời gian nhận tin nhắn cuối cùng
+        this.updateLastMessageTime();
 
-            // Kiểm tra nếu tin nhắn là giữa người hiện tại và người đang trò chuyện
-            if (this.currentChatUserId &&
-                (messageOutput.sender == this.currentChatUserId ||
-                 messageOutput.receiver == this.currentChatUserId)) {
-
-                // Tin nhắn giữa người dùng hiện tại và người đang trò chuyện
-                if (messageOutput.sender !== this.currentUser.maNguoiDung + "") {
-                    // Tin nhắn nhận được
-                    this.addMessageToUI(messageOutput.content, false);
-                    // Cập nhật lại danh sách người dùng để đánh dấu đã đọc
-                    this.updateUnreadStatus(messageOutput.sender);
-                } else {
-                    // Tin nhắn đã gửi, thêm vào UI
-                    this.addMessageToUI(messageOutput.content, true);
-                }
-            } else {
-                // Nếu tin nhắn không phải với người đang trò chuyện, cập nhật danh sách người trò chuyện
-                this.updateUserListWithNewMessage(messageOutput);
-            }
-        }
+        // Load lại trang sau khi nhận tin nhắn để cập nhật từ database
+        setTimeout(function() {
+            location.reload();
+        }, 100); // Giảm thời gian chờ
     },
 
     updateUserListWithNewMessage: function(messageOutput) {
@@ -176,13 +202,14 @@ var chatApp = {
                     var messageElement = document.createElement('div');
                     messageElement.classList.add('message-bubble');
 
-                    if (message.sender.maNguoiDung === chatApp.currentUser.maNguoiDung) {
+                    // Kiểm tra xem tin nhắn là gửi hay nhận dựa trên StandardChatMessage
+                    if (message.senderId === chatApp.currentUser.maNguoiDung) {
                         messageElement.classList.add('sent');
                     } else {
                         messageElement.classList.add('received');
                     }
 
-                    messageElement.textContent = message.noiDung;
+                    messageElement.textContent = message.content;
                     messagesContainer.appendChild(messageElement);
                 });
 
@@ -217,3 +244,21 @@ var chatApp = {
 function sendMessage() {
     chatApp.sendMessage();
 }
+
+// Hàm khôi phục phiên trò chuyện từ localStorage khi trang được load lại
+function restorePreviousChatSession() {
+    if (chatApp.currentUser) {
+        var savedUserId = localStorage.getItem('currentChatUserId');
+        var savedIsAdmin = localStorage.getItem('currentChatIsAdmin');
+
+        if (savedUserId) {
+            // Khôi phục phiên trò chuyện
+            chatApp.selectChat(parseInt(savedUserId), savedIsAdmin === 'true');
+        }
+    }
+}
+
+// Gọi hàm khôi phục khi trang được load xong
+document.addEventListener('DOMContentLoaded', function() {
+    restorePreviousChatSession();
+});
