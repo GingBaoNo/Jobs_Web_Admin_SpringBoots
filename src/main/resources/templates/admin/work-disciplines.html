@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Quản lý ngành nghề'">Quản lý ngành nghề</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase me-2"></i>Admin Dashboard
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">Bảng điều khiển</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/users}">Người dùng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/companies}">Công ty</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            Nghề nghiệp
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/admin/work-fields}">Lĩnh vực</a></li>
+                            <li><a class="dropdown-item active" th:href="@{/admin/work-disciplines}">Ngành nghề</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/job-positions}">Vị trí công việc</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/experience-levels}">Cấp độ kinh nghiệm</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/work-types}">Hình thức làm việc</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="display: inline;">
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">Quản lý ngành nghề</h2>
+
+        <!-- Thống báo lỗi hoặc thành công -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <!-- Form thêm mới ngành nghề -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Thêm mới ngành nghề</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/admin/work-disciplines/create}" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tenNganh" class="form-label">Tên ngành nghề</label>
+                                <input type="text" class="form-control" id="tenNganh" name="tenNganh" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maLinhVuc" class="form-label">Lĩnh vực</label>
+                                <select class="form-select" id="maLinhVuc" name="maLinhVuc" required>
+                                    <option value="">Chọn lĩnh vực</option>
+                                    <option th:each="workField : ${workFields}" 
+                                            th:value="${workField.maLinhVuc}" 
+                                            th:text="${workField.tenLinhVuc}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm mới</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Form tìm kiếm -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{/admin/work-disciplines}" method="get" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="search" 
+                               th:value="${searchQuery}" 
+                               placeholder="Tìm kiếm ngành nghề...">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-primary w-100">Tìm kiếm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Danh sách ngành nghề -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Danh sách ngành nghề</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên ngành nghề</th>
+                                <th>Lĩnh vực</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="workDiscipline : ${workDisciplines}">
+                                <td th:text="${workDiscipline.maNganh}"></td>
+                                <td th:text="${workDiscipline.tenNganh}"></td>
+                                <td th:text="${workDiscipline.workField.tenLinhVuc}"></td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editModal"
+                                            th:data-id="${workDiscipline.maNganh}"
+                                            th:data-name="${workDiscipline.tenNganh}"
+                                            th:data-field-id="${workDiscipline.workField.maLinhVuc}"
+                                            onclick="fillEditForm(this)">
+                                        Sửa
+                                    </button>
+                                    <form th:action="@{/admin/work-disciplines/{id}/delete(id=${workDiscipline.maNganh})}"
+                                          method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Bạn có chắc chắn muốn xóa ngành nghề này?')">
+                                            Xóa
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal sửa ngành nghề -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Sửa ngành nghề</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/work-disciplines/0/update}" method="post" id="editForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-3">
+                            <label for="editTenNganh" class="form-label">Tên ngành nghề</label>
+                            <input type="text" class="form-control" id="editTenNganh" name="tenNganh" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMaLinhVuc" class="form-label">Lĩnh vực</label>
+                            <select class="form-select" id="editMaLinhVuc" name="maLinhVuc" required>
+                                <option value="">Chọn lĩnh vực</option>
+                                <option th:each="workField : ${workFields}" 
+                                        th:value="${workField.maLinhVuc}" 
+                                        th:text="${workField.tenLinhVuc}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        function fillEditForm(button) {
+            var id = button.getAttribute('data-id');
+            var name = button.getAttribute('data-name');
+            var fieldId = button.getAttribute('data-field-id');
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editTenNganh').value = name;
+            document.getElementById('editMaLinhVuc').value = fieldId;
+
+            // Cập nhật action của form
+            document.getElementById('editForm').action = '/admin/work-disciplines/' + id + '/update';
+        }
+    </script>
+</body>
+</html>

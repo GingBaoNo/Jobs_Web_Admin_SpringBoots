@@ -42,8 +42,16 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/admin/roles}">Vai trò</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/admin/work-fields}">Ngành nghề</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="careerDropdown" role="button" data-bs-toggle="dropdown">
+                            Nghề nghiệp
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/admin/work-fields}">Lĩnh vực</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/work-disciplines}">Ngành nghề</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/job-positions}">Vị trí công việc</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/experience-levels}">Cấp độ kinh nghiệm</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/admin/work-types}">Hình thức làm việc</a>

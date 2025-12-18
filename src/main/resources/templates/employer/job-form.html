@@ -116,13 +116,48 @@
                                 
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="workField" class="form-label">Ngành nghề <span class="text-danger">*</span></label>
+                                        <label for="workField" class="form-label">Lĩnh vực <span class="text-danger">*</span></label>
                                         <select class="form-select" id="workField" th:field="*{workField}" required>
-                                            <option value="">Chọn ngành nghề</option>
-                                            <option th:each="field : ${workFields}" 
-                                                    th:value="${field.maLinhVuc}" 
+                                            <option value="">Chọn lĩnh vực</option>
+                                            <option th:each="field : ${workFields}"
+                                                    th:value="${field.maLinhVuc}"
                                                     th:text="${field.tenLinhVuc}"
-                                                    th:selected="${job.workField != null and job.workField.maLinhVuc == field.maLinhVuc}">Ngành nghề</option>
+                                                    th:selected="${job.workField != null and job.workField.maLinhVuc == field.maLinhVuc}">Lĩnh vực</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="workDiscipline" class="form-label">Ngành nghề</label>
+                                        <select class="form-select" id="workDiscipline" name="maNganh">
+                                            <option value="">Chọn ngành nghề</option>
+                                            <option th:each="discipline : ${workDisciplines}"
+                                                    th:value="${discipline.maNganh}"
+                                                    th:text="${discipline.tenNganh}"
+                                                    th:selected="${job.jobPosition != null and job.jobPosition.workDiscipline.maNganh == discipline.maNganh}"
+                                                    th:attr="data-field-id=${discipline.workField.maLinhVuc}">Ngành nghề</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="jobPosition" class="form-label">Vị trí công việc</label>
+                                        <select class="form-select" id="jobPosition" name="maViTri">
+                                            <option value="">Chọn vị trí công việc</option>
+                                            <option th:each="position : ${jobPositions}"
+                                                    th:value="${position.maViTri}"
+                                                    th:text="${position.tenViTri}"
+                                                    th:selected="${job.jobPosition != null and job.jobPosition.maViTri == position.maViTri}"
+                                                    th:attr="data-discipline-id=${position.workDiscipline.maNganh}">Vị trí công việc</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="experienceLevel" class="form-label">Cấp độ kinh nghiệm</label>
+                                        <select class="form-select" id="experienceLevel" name="maCapDoKinhNghiem">
+                                            <option value="">Chọn cấp độ kinh nghiệm</option>
+                                            <option th:each="level : ${experienceLevels}"
+                                                    th:value="${level.maCapDo}"
+                                                    th:text="${level.tenCapDo}"
+                                                    th:selected="${job.experienceLevel != null and job.experienceLevel.maCapDo == level.maCapDo}">Cấp độ kinh nghiệm</option>
                                         </select>
                                     </div>
                                     
@@ -288,14 +323,74 @@
                 const today = new Date();
                 const nextMonth = new Date(today);
                 nextMonth.setDate(today.getDate() + 30);
-                
+
                 // Format to YYYY-MM-DD
                 const formattedDate = nextMonth.toISOString().split('T')[0];
-                
+
                 const endDateInput = document.getElementById('ngayKetThucTuyenDung');
                 if (!endDateInput.value) {
                     endDateInput.value = formattedDate;
                 }
+            }
+
+            // Populate dependent dropdowns based on selection
+            const workFieldSelect = document.getElementById('workField');
+            const workDisciplineSelect = document.getElementById('workDiscipline');
+            const jobPositionSelect = document.getElementById('jobPosition');
+
+            // Store all disciplines and positions for filtering
+            const allDisciplines = Array.from(workDisciplineSelect.options);
+            const allPositions = Array.from(jobPositionSelect.options);
+
+            // Update disciplines when field is selected
+            workFieldSelect.addEventListener('change', function() {
+                const selectedFieldId = this.value;
+
+                // Filter disciplines based on selected field
+                workDisciplineSelect.innerHTML = '<option value="">Chọn ngành nghề</option>';
+
+                allDisciplines.forEach(option => {
+                    if (option.value !== "") { // Skip the placeholder
+                        const disciplineFieldId = option.getAttribute('data-field-id');
+                        if (!selectedFieldId || !disciplineFieldId || disciplineFieldId == selectedFieldId) {
+                            workDisciplineSelect.appendChild(option.cloneNode(true));
+                        }
+                    }
+                });
+
+                // Reset dependent dropdowns
+                jobPositionSelect.innerHTML = '<option value="">Chọn vị trí công việc</option>';
+            });
+
+            // Update positions when discipline is selected
+            workDisciplineSelect.addEventListener('change', function() {
+                const selectedDisciplineId = this.value;
+
+                // Filter positions based on selected discipline
+                jobPositionSelect.innerHTML = '<option value="">Chọn vị trí công việc</option>';
+
+                allPositions.forEach(option => {
+                    if (option.value !== "") { // Skip the placeholder
+                        const positionDisciplineId = option.getAttribute('data-discipline-id');
+                        if (!selectedDisciplineId || !positionDisciplineId || positionDisciplineId == selectedDisciplineId) {
+                            jobPositionSelect.appendChild(option.cloneNode(true));
+                        }
+                    }
+                });
+            });
+
+            // Set initial values if editing an existing job
+            const initialFieldId = workFieldSelect.value;
+            if (initialFieldId) {
+                // Filter disciplines based on initial field
+                const filteredDisciplines = allDisciplines.filter(option =>
+                    option.value === "" || option.getAttribute('data-field-id') == initialFieldId
+                );
+
+                workDisciplineSelect.innerHTML = '<option value="">Chọn ngành nghề</option>';
+                filteredDisciplines.forEach(option => {
+                    workDisciplineSelect.appendChild(option.cloneNode(true));
+                });
             }
         });
     </script>
