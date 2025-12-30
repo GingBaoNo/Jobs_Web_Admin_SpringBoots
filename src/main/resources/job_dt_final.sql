@@ -14,11 +14,11 @@ IF OBJECT_ID('profile', 'U') IS NOT NULL DROP TABLE profile;
 IF OBJECT_ID('job_locations', 'U') IS NOT NULL DROP TABLE job_locations;
 IF OBJECT_ID('jobdetails', 'U') IS NOT NULL DROP TABLE jobdetails;
 IF OBJECT_ID('company', 'U') IS NOT NULL DROP TABLE company;
-IF OBJECT_ID('job_positions', 'U') IS NOT NULL DROP TABLE job_positions; 
-IF OBJECT_ID('work_disciplines', 'U') IS NOT NULL DROP TABLE work_disciplines; 
+IF OBJECT_ID('job_positions', 'U') IS NOT NULL DROP TABLE job_positions;
+IF OBJECT_ID('work_disciplines', 'U') IS NOT NULL DROP TABLE work_disciplines;
 IF OBJECT_ID('skills', 'U') IS NOT NULL DROP TABLE skills;
 IF OBJECT_ID('work_types', 'U') IS NOT NULL DROP TABLE work_types;
-IF OBJECT_ID('experience_levels', 'U') IS NOT NULL DROP TABLE experience_levels; 
+IF OBJECT_ID('experience_levels', 'U') IS NOT NULL DROP TABLE experience_levels;
 IF OBJECT_ID('work_fields', 'U') IS NOT NULL DROP TABLE work_fields;
 IF OBJECT_ID('locations', 'U') IS NOT NULL DROP TABLE locations;
 IF OBJECT_ID('user', 'U') IS NOT NULL DROP TABLE [user];
@@ -68,7 +68,7 @@ CREATE TABLE experience_levels (
 -- >> Ngành cụ thể (VD: Software Engineering thuộc CNTT)
 CREATE TABLE work_disciplines (
     ma_nganh INT PRIMARY KEY IDENTITY(1,1),
-    ma_linh_vuc INT NOT NULL, 
+    ma_linh_vuc INT NOT NULL,
     ten_nganh NVARCHAR(100) NOT NULL UNIQUE,
     CONSTRAINT fk_discipline_field FOREIGN KEY (ma_linh_vuc) REFERENCES work_fields (ma_linh_vuc) ON DELETE CASCADE
 );
@@ -76,7 +76,7 @@ CREATE TABLE work_disciplines (
 -- >> Vị trí công việc (VD: Backend Developer thuộc Software Engineering)
 CREATE TABLE job_positions (
     ma_vi_tri INT PRIMARY KEY IDENTITY(1,1),
-    ma_nganh INT NOT NULL, 
+    ma_nganh INT NOT NULL,
     ten_vi_tri NVARCHAR(100) NOT NULL UNIQUE,
     CONSTRAINT fk_position_discipline FOREIGN KEY (ma_nganh) REFERENCES work_disciplines (ma_nganh) ON DELETE CASCADE
 );
@@ -260,7 +260,7 @@ CREATE TABLE company_followers (
     ngay_theo_doi DATETIME NULL DEFAULT GETDATE(),
     CONSTRAINT uk_user_company UNIQUE (ma_nguoi_dung, ma_cong_ty),
     CONSTRAINT fk_company_followers_user FOREIGN KEY (ma_nguoi_dung) REFERENCES [user] (ma_nguoi_dung) ON DELETE CASCADE,
-    CONSTRAINT fk_company_followers_company FOREIGN KEY (ma_cong_ty) REFERENCES company (ma_cong_ty) ON DELETE NO ACTION 
+    CONSTRAINT fk_company_followers_company FOREIGN KEY (ma_cong_ty) REFERENCES company (ma_cong_ty) ON DELETE NO ACTION
 );
 
 CREATE TABLE job_alerts (

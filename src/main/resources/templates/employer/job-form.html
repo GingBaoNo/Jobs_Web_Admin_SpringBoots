@@ -250,11 +250,26 @@
                                     <div class="mb-3">
                                         <label for="diaDiem" class="form-label">Địa điểm làm việc</label>
                                         <select class="form-select" id="diaDiem" multiple>
-                                            <option th:each="location : ${locations}" 
-                                                    th:value="${location.maDiaDiem}" 
+                                            <option th:each="location : ${locations}"
+                                                    th:value="${location.maDiaDiem}"
                                                     th:text="${location.tenDiaDiem}">Địa điểm</option>
                                         </select>
                                         <div class="form-text">Giữ phím Ctrl để chọn nhiều địa điểm</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thêm phần tích hợp Google Maps cho địa điểm công việc -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Vị trí cụ thể trên bản đồ</label>
+                                        <div id="jobMap" style="height: 300px; width: 100%; border: 1px solid #ddd; border-radius: 5px;"></div>
+                                        <input type="hidden" id="jobKinhDo" name="kinhDo" th:value="${job.kinhDo}">
+                                        <input type="hidden" id="jobViDo" name="viDo" th:value="${job.viDo}">
+                                        <div class="mt-2">
+                                            <small class="text-muted">Kéo chấm đỏ trên bản đồ để chọn vị trí chính xác cho công việc này</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -393,6 +408,137 @@
                 });
             }
         });
+
+        // Khai báo biến toàn cục để lưu trữ map và marker cho bản đồ công việc
+        let jobMap;
+        let jobMarker;
+        let jobGeocoder;
+
+        // Hàm khởi tạo bản đồ cho công việc
+        function initJobMap() {
+            // Tọa độ mặc định (Hồ Chí Minh)
+            const defaultPosition = { lat: 10.8231, lng: 106.6297 };
+
+            // Lấy tọa độ từ form nếu có
+            const kinhDo = parseFloat(document.getElementById('jobKinhDo').value);
+            const viDo = parseFloat(document.getElementById('jobViDo').value);
+
+            let center = defaultPosition;
+            if (!isNaN(kinhDo) && !isNaN(viDo)) {
+                center = { lat: viDo, lng: kinhDo };
+            }
+
+            // Tạo bản đồ cho công việc
+            jobMap = new google.maps.Map(document.getElementById('jobMap'), {
+                zoom: 15,
+                center: center
+            });
+
+            // Tạo đối tượng geocoder để chuyển đổi địa chỉ sang tọa độ
+            jobGeocoder = new google.maps.Geocoder();
+
+            // Tạo marker cho công việc
+            jobMarker = new google.maps.Marker({
+                position: center,
+                map: jobMap,
+                draggable: true,
+                title: 'Kéo để điều chỉnh vị trí công việc'
+            });
+
+            // Sự kiện khi kéo marker cho công việc
+            jobMarker.addListener('dragend', function(event) {
+                document.getElementById('jobKinhDo').value = event.latLng.lng();
+                document.getElementById('jobViDo').value = event.latLng.lat();
+            });
+        }
+
+        // Hàm tải Google Maps API và khởi tạo bản đồ cho công việc
+        function loadJobGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initJobMap&libraries=places';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        // Gọi hàm load bản đồ cho công việc sau khi trang đã tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tải thư viện Leaflet (OpenStreetMap) cho công việc
+            loadLeafletJobMap();
+        });
+
+        // Hàm tải và khởi tạo Leaflet (OpenStreetMap) cho công việc
+        function loadLeafletJobMap() {
+            // Kiểm tra nếu Leaflet đã được tải
+            if (typeof L !== 'undefined') {
+                initLeafletJobMap();
+            } else {
+                // Tải CSS của Leaflet
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                cssLink.crossOrigin = '';
+                document.head.appendChild(cssLink);
+
+                // Tải thư viện Leaflet
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                script.crossOrigin = '';
+                script.onload = function() {
+                    initLeafletJobMap();
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // Hàm khởi tạo bản đồ Leaflet (OpenStreetMap) cho công việc
+        function initLeafletJobMap() {
+            // Lấy tọa độ từ form nếu có
+            const kinhDo = parseFloat(document.getElementById('jobKinhDo').value);
+            const viDo = parseFloat(document.getElementById('jobViDo').value);
+
+            let center = [10.8231, 106.6297]; // Tọa độ mặc định (TP.HCM)
+            if (!isNaN(kinhDo) && !isNaN(viDo)) {
+                center = [viDo, kinhDo];
+            }
+
+            // Tạo instance của map cho công việc
+            window.leafletJobMap = L.map('jobMap').setView(center, 15);
+
+            // Thêm lớp bản đồ từ OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(window.leafletJobMap);
+
+            // Tạo marker cho công việc
+            window.leafletJobMarker = L.marker(center).addTo(window.leafletJobMap);
+
+            // Sự kiện click trên bản đồ để cập nhật marker cho công việc
+            window.leafletJobMap.on('click', function(e) {
+                // Xóa marker cũ
+                window.leafletJobMap.removeLayer(window.leafletJobMarker);
+
+                // Tạo marker mới tại vị trí click
+                window.leafletJobMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(window.leafletJobMap);
+
+                // Cập nhật tọa độ vào form
+                document.getElementById('jobKinhDo').value = e.latlng.lng;
+                document.getElementById('jobViDo').value = e.latlng.lat;
+            });
+
+            // Sự kiện di chuyển marker cho công việc
+            window.leafletJobMarker.on('dragend', function(e) {
+                // Cập nhật tọa độ vào form khi kéo marker
+                const markerPos = window.leafletJobMarker.getLatLng();
+                document.getElementById('jobKinhDo').value = markerPos.lng;
+                document.getElementById('jobViDo').value = markerPos.lat;
+            });
+
+            // Cho phép kéo marker cho công việc
+            window.leafletJobMarker.dragging.enable();
+        }
     </script>
 </body>
 </html>

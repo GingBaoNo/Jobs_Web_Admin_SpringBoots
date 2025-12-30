@@ -122,7 +122,18 @@
 
                             <div class="mb-3">
                                 <label for="diaChi" class="form-label">Địa chỉ</label>
-                                <textarea class="form-control" id="diaChi" name="diaChi" rows="3" th:text="${company.diaChi}"></textarea>
+                                <textarea class="form-control" id="diaChi" name="diaChi" rows="3" th:text="${company.diaChi}" oninput="updateMapFromAddress()"></textarea>
+                            </div>
+
+                            <!-- Thêm phần tích hợp Google Maps -->
+                            <div class="mb-3">
+                                <label class="form-label">Vị trí trên bản đồ</label>
+                                <div id="map" style="height: 300px; width: 100%; border: 1px solid #ddd; border-radius: 5px;"></div>
+                                <input type="hidden" id="kinhDo" name="kinhDo" th:value="${company.kinhDo}">
+                                <input type="hidden" id="viDo" name="viDo" th:value="${company.viDo}">
+                                <div class="mt-2">
+                                    <small class="text-muted">Kéo chấm đỏ trên bản đồ để điều chỉnh vị trí chính xác</small>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -206,5 +217,159 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Google Maps API -->
+    <script>
+        // Khai báo biến toàn cục để lưu trữ map và marker
+        let map;
+        let marker;
+        let geocoder;
+
+        // Hàm khởi tạo bản đồ
+        function initMap() {
+            // Tọa độ mặc định (Hồ Chí Minh)
+            const defaultPosition = { lat: 10.8231, lng: 106.6297 };
+
+            // Lấy tọa độ từ form nếu có
+            const kinhDo = parseFloat(document.getElementById('kinhDo').value);
+            const viDo = parseFloat(document.getElementById('viDo').value);
+
+            let center = defaultPosition;
+            if (!isNaN(kinhDo) && !isNaN(viDo)) {
+                center = { lat: viDo, lng: kinhDo };
+            }
+
+            // Tạo bản đồ
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: center
+            });
+
+            // Tạo đối tượng geocoder để chuyển đổi địa chỉ sang tọa độ
+            geocoder = new google.maps.Geocoder();
+
+            // Tạo marker
+            marker = new google.maps.Marker({
+                position: center,
+                map: map,
+                draggable: true,
+                title: 'Kéo để điều chỉnh vị trí'
+            });
+
+            // Sự kiện khi kéo marker
+            marker.addListener('dragend', function(event) {
+                document.getElementById('kinhDo').value = event.latLng.lng();
+                document.getElementById('viDo').value = event.latLng.lat();
+            });
+        }
+
+        // Hàm cập nhật bản đồ từ địa chỉ
+        function updateMapFromAddress() {
+            const address = document.getElementById('diaChi').value;
+            if (address && geocoder) {
+                geocoder.geocode({ 'address': address }, function(results, status) {
+                    if (status === 'OK') {
+                        const location = results[0].geometry.location;
+                        map.setCenter(location);
+                        marker.setPosition(location);
+
+                        // Cập nhật tọa độ vào form
+                        document.getElementById('kinhDo').value = location.lng();
+                        document.getElementById('viDo').value = location.lat();
+                    } else {
+                        console.log('Geocode không thành công: ' + status);
+                    }
+                });
+            }
+        }
+
+        // Hàm tải Google Maps API và khởi tạo bản đồ
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap&libraries=places';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        // Gọi hàm load bản đồ sau khi trang đã tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tải thư viện Leaflet (OpenStreetMap)
+            loadLeafletMap();
+        });
+
+        // Hàm tải và khởi tạo Leaflet (OpenStreetMap)
+        function loadLeafletMap() {
+            // Kiểm tra nếu Leaflet đã được tải
+            if (typeof L !== 'undefined') {
+                initLeafletMap();
+            } else {
+                // Tải CSS của Leaflet
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                cssLink.crossOrigin = '';
+                document.head.appendChild(cssLink);
+
+                // Tải thư viện Leaflet
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                script.crossOrigin = '';
+                script.onload = function() {
+                    initLeafletMap();
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // Hàm khởi tạo bản đồ Leaflet (OpenStreetMap)
+        function initLeafletMap() {
+            // Lấy tọa độ từ form nếu có
+            const kinhDo = parseFloat(document.getElementById('kinhDo').value);
+            const viDo = parseFloat(document.getElementById('viDo').value);
+
+            let center = [10.8231, 106.6297]; // Tọa độ mặc định (TP.HCM)
+            if (!isNaN(kinhDo) && !isNaN(viDo)) {
+                center = [viDo, kinhDo];
+            }
+
+            // Tạo instance của map
+            window.leafletMap = L.map('map').setView(center, 15);
+
+            // Thêm lớp bản đồ từ OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(window.leafletMap);
+
+            // Tạo marker
+            window.leafletMarker = L.marker(center).addTo(window.leafletMap);
+
+            // Sự kiện click trên bản đồ để cập nhật marker
+            window.leafletMap.on('click', function(e) {
+                // Xóa marker cũ
+                window.leafletMap.removeLayer(window.leafletMarker);
+
+                // Tạo marker mới tại vị trí click
+                window.leafletMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(window.leafletMap);
+
+                // Cập nhật tọa độ vào form
+                document.getElementById('kinhDo').value = e.latlng.lng;
+                document.getElementById('viDo').value = e.latlng.lat;
+            });
+
+            // Sự kiện di chuyển marker (nếu được bật)
+            window.leafletMarker.on('dragend', function(e) {
+                // Cập nhật tọa độ vào form khi kéo marker
+                const markerPos = window.leafletMarker.getLatLng();
+                document.getElementById('kinhDo').value = markerPos.lng;
+                document.getElementById('viDo').value = markerPos.lat;
+            });
+
+            // Cho phép kéo marker
+            window.leafletMarker.dragging.enable();
+        }
+    </script>
 </body>
 </html>

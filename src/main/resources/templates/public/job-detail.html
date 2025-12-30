@@ -75,6 +75,12 @@
                     </div>
                 </div>
 
+                <!-- Thêm phần bản đồ nếu có tọa độ -->
+                <div th:if="${job.kinhDo != null and job.viDo != null}" class="mb-4">
+                    <h5><strong>Vị trí làm việc:</strong></h5>
+                    <div id="jobDetailMap" style="height: 400px; width: 100%; border: 1px solid #ddd; border-radius: 5px;"></div>
+                </div>
+
                 <div class="text-center mt-4">
                     <!-- <button type="button" class="btn btn-primary btn-lg" onclick="location.href='/apply/' + [[${job.maCongViec}]]">Ứng tuyển ngay</button> -->
                     <button type="button" class="btn btn-outline-primary btn-lg" onclick="location.href='/jobs'">Trở lại danh sách</button>
@@ -88,5 +94,59 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet (OpenStreetMap) API cho trang chi tiết công việc -->
+    <script th:inline="javascript">
+        // Lấy tọa độ từ model
+        const kinhDo = /*[[${job.kinhDo}]]*/ null;
+        const viDo = /*[[${job.viDo}]]*/ null;
+
+        if (kinhDo !== null && viDo !== null && document.getElementById('jobDetailMap')) {
+            // Tải thư viện Leaflet (OpenStreetMap) cho trang chi tiết công việc
+            loadLeafletJobDetailMap(parseFloat(viDo), parseFloat(kinhDo));
+        }
+
+        // Hàm tải và khởi tạo Leaflet (OpenStreetMap) cho trang chi tiết công việc
+        function loadLeafletJobDetailMap(viDo, kinhDo) {
+            // Kiểm tra nếu Leaflet đã được tải
+            if (typeof L !== 'undefined') {
+                initLeafletJobDetailMap(viDo, kinhDo);
+            } else {
+                // Tải CSS của Leaflet
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                cssLink.crossOrigin = '';
+                document.head.appendChild(cssLink);
+
+                // Tải thư viện Leaflet
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                script.crossOrigin = '';
+                script.onload = function() {
+                    initLeafletJobDetailMap(viDo, kinhDo);
+                };
+                document.head.appendChild(script);
+            }
+        }
+
+        // Hàm khởi tạo bản đồ Leaflet (OpenStreetMap) cho trang chi tiết công việc
+        function initLeafletJobDetailMap(viDo, kinhDo) {
+            // Tạo instance của map cho trang chi tiết công việc
+            const map = L.map('jobDetailMap').setView([viDo, kinhDo], 15);
+
+            // Thêm lớp bản đồ từ OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Tạo marker cho trang chi tiết công việc
+            L.marker([viDo, kinhDo]).addTo(map)
+                .bindPopup('Vị trí làm việc')
+                .openPopup();
+        }
+    </script>
 </body>
 </html>
