@@ -375,7 +375,8 @@ public class ApiJobDetailController {
             companyInfo.put("maCongTy", company.getMaCongTy());
             companyInfo.put("tenCongTy", company.getTenCongTy());
             companyInfo.put("diaChi", company.getDiaChi());
-            companyInfo.put("lienHeCty", company.getLienHeCty());
+            companyInfo.put("emailCty", company.getEmailCty());
+            companyInfo.put("soDienThoaiCty", company.getSoDienThoaiCty());
             companyInfo.put("hinhAnhCty", company.getHinhAnhCty()); // Đây là trường chứa logo công ty
             companyInfo.put("daXacThuc", company.getDaXacThuc());
             companyInfo.put("moTaCongTy", company.getMoTaCongTy()); // Thêm trường mô tả công ty

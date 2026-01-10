@@ -130,7 +130,7 @@
                     <div class="card-body">
                         <h6 th:text="${company.tenCongTy}">Tên công ty</h6>
                         <p class="text-muted" th:text="${company.diaChi}">Địa chỉ công ty</p>
-                        <p><i class="fas fa-phone me-2"></i> <span th:text="${company.lienHeCty}">Số điện thoại</span></p>
+                        <p><i class="fas fa-envelope me-2"></i> <span th:text="${company.emailCty}">Email</span></p>
                         <p>
                             <span class="badge bg-success" th:if="${company.daXacThuc}">Đã xác thực</span>
                             <span class="badge bg-warning" th:unless="${company.daXacThuc}">Chưa xác thực</span>

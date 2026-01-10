@@ -154,14 +154,23 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="soDienThoaiCty" class="form-label">Số điện thoại công ty</label>
+                                        <input type="tel" class="form-control" id="soDienThoaiCty" name="soDienThoaiCty" th:value="${company.soDienThoaiCty}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
                                         <label for="maSoThue" class="form-label">Mã số thuế</label>
                                         <input type="text" class="form-control" id="maSoThue" name="maSoThue" th:value="${company.maSoThue}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="lienHeCty" class="form-label">Liên hệ</label>
-                                        <input type="text" class="form-control" id="lienHeCty" name="lienHeCty" th:value="${company.lienHeCty}">
+                                        <label for="emailCty" class="form-label">Email công ty</label>
+                                        <input type="email" class="form-control" id="emailCty" name="emailCty" th:value="${company.emailCty}">
                                     </div>
                                 </div>
                             </div>

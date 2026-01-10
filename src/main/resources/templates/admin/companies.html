@@ -135,14 +135,14 @@
                                         <td th:text="${company.tenNguoiDaiDien}">Người đại diện</td>
                                         <td th:text="${company.maSoThue}">Mã số thuế</td>
                                         <td th:text="${company.diaChi}">Địa chỉ</td>
-                                        <td th:text="${company.lienHeCty}">Liên hệ</td>
+                                        <td th:text="${company.emailCty}">Liên hệ</td>
                                         <td th:text="${#dates.format(company.ngayTao, 'dd/MM/yyyy')}">Ngày tạo</td>
                                         <td>
                                             <span class="badge bg-warning">Chưa xác thực</span>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.lienHeCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.emailCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
                                                     <i class="fas fa-eye"></i> Xem
                                                 </button>
                                                 <form th:action="@{/admin/companies/{id}/approve(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn duyệt công ty này?')">
@@ -216,14 +216,14 @@
                                         <td th:text="${company.tenNguoiDaiDien}">Người đại diện</td>
                                         <td th:text="${company.maSoThue}">Mã số thuế</td>
                                         <td th:text="${company.diaChi}">Địa chỉ</td>
-                                        <td th:text="${company.lienHeCty}">Liên hệ</td>
+                                        <td th:text="${company.emailCty}">Liên hệ</td>
                                         <td th:text="${#dates.format(company.ngayTao, 'dd/MM/yyyy')}">Ngày tạo</td>
                                         <td>
                                             <span class="badge bg-success">Đã xác thực</span>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.lienHeCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.emailCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
                                                     <i class="fas fa-eye"></i> Xem
                                                 </button>
                                                 <form th:action="@{/admin/companies/{id}/reject(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy xác thực công ty này?')">

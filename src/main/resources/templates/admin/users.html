@@ -130,7 +130,7 @@
                                 <td>
                                     <span class="badge bg-primary" th:text="${user.role.tenVaiTro}">NV</span>
                                 </td>
-                                <td th:text="${user.lienHe}">user1@example.com</td>
+                                <td th:text="${user.email}">user1@example.com</td>
                                 <td>
                                     <span class="badge bg-success" th:if="${user.trangThaiHoatDong}">Hoạt động</span>
                                     <span class="badge bg-danger" th:unless="${user.trangThaiHoatDong}">Ngừng hoạt động</span>
@@ -140,7 +140,7 @@
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-primary"
                                             data-bs-toggle="modal" data-bs-target="#editUserModal"
-                                            th:attr="data-user-id=${user.maNguoiDung}, data-user-account=${user.taiKhoan}, data-user-displayname=${user.tenHienThi}, data-user-contact=${user.lienHe}, data-user-role=${user.role.maVaiTro}, data-user-active=${user.trangThaiHoatDong}">
+                                            th:attr="data-user-id=${user.maNguoiDung}, data-user-account=${user.taiKhoan}, data-user-displayname=${user.tenHienThi}, data-user-contact=${user.email}, data-user-role=${user.role.maVaiTro}, data-user-active=${user.trangThaiHoatDong}">
                                             Sửa
                                         </button>
                                         <form th:action="@{/admin/users/{id}/delete(id=${user.maNguoiDung})}" method="post" style="display: inline;">
@@ -197,8 +197,8 @@
                             <input type="text" class="form-control" id="newTenHienThi">
                         </div>
                         <div class="mb-3">
-                            <label for="newLienHe" class="form-label">Liên hệ</label>
-                            <input type="text" class="form-control" id="newLienHe" required>
+                            <label for="newEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="newEmail" required>
                         </div>
                         <div class="mb-3">
                             <label for="newRole" class="form-label">Vai trò</label>
@@ -242,8 +242,8 @@
                             <input type="text" class="form-control" id="editTenHienThi">
                         </div>
                         <div class="mb-3">
-                            <label for="editLienHe" class="form-label">Liên hệ</label>
-                            <input type="text" class="form-control" id="editLienHe" required>
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" required>
                         </div>
                         <div class="mb-3">
                             <label for="editRole" class="form-label">Vai trò</label>
@@ -314,7 +314,7 @@
                     document.getElementById('editUserId').value = userId;
                     document.getElementById('editTaiKhoan').value = userAccount;
                     document.getElementById('editTenHienThi').value = userDisplayname;
-                    document.getElementById('editLienHe').value = userContact;
+                    document.getElementById('editEmail').value = userContact;
                     document.getElementById('editRole').value = userRole;
                     document.getElementById('editTrangThaiHoatDong').checked = userActive;
                 });

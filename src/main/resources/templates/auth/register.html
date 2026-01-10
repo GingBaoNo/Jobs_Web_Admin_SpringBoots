@@ -124,11 +124,21 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label for="lienHe" class="form-label">Email hoặc số điện thoại <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                        <input type="text" class="form-control" id="lienHe" th:field="*{lienHe}" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label for="soDienThoai" class="form-label">Số điện thoại</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                        <input type="tel" class="form-control" id="soDienThoai" th:field="*{soDienThoai}">
+                                    </div>
                                 </div>
                             </div>
 
