@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tin tuyển dụng mới chờ duyệt</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2196F3; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tin tuyển dụng mới chờ duyệt</h1>
+        </div>
+        <div class="content">
+            <p>Xin chào,</p>
+            
+            <p>Có một tin tuyển dụng mới đã được đăng trên hệ thống và đang chờ duyệt:</p>
+            
+            <p>Tiêu đề công việc: <strong th:text="${jobTitle}">[Tên công việc]</strong></p>
+            <p>Công ty: <strong th:text="${companyName}">[Tên công ty]</strong></p>
+            
+            <p>Vui lòng đăng nhập vào trang quản trị để xem chi tiết và xử lý yêu cầu duyệt tin tuyển dụng:</p>
+            
+            <p style="text-align: center;">
+                <a th:href="${siteUrl}" class="button">Truy cập trang quản trị</a>
+            </p>
+            
+            <p>Trân trọng,<br/>Hệ thống Fjobs</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Fjobs. Tất cả quyền được bảo lưu.</p>
+            <p>Email này được gửi tự động, vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>

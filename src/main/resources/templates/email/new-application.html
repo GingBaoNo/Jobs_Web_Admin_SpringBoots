@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo ứng tuyển mới</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #FF9800; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thông báo ứng tuyển mới</h1>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${employerName}">[Tên nhà tuyển dụng]</strong>,</p>
+            
+            <p>Chúng tôi xin thông báo rằng có một ứng viên mới đã ứng tuyển vào công việc <strong th:text="${jobTitle}">[Tên công việc]</strong> trên hệ thống Job Portal.</p>
+            
+            <p>Thông tin ứng viên:</p>
+            <ul>
+                <li>Họ tên: <strong th:text="${applicantName}">[Tên ứng viên]</strong></li>
+            </ul>
+            
+            <p>Vui lòng đăng nhập vào tài khoản nhà tuyển dụng của bạn để xem chi tiết hồ sơ và xử lý ứng tuyển:</p>
+            
+            <p style="text-align: center;">
+                <a th:href="${siteUrl} + '/employer/applicants'" class="button">Xem ứng viên</a>
+            </p>
+            
+            <p>Trân trọng,<br/>Đội ngũ Fjobs</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Fjobs. Tất cả quyền được bảo lưu.</p>
+            <p>Email này được gửi tự động, vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>

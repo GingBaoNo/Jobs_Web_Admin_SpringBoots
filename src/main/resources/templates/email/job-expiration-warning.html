@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tin tuyển dụng sắp hết hạn</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #FF9800; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tin tuyển dụng sắp hết hạn</h1>
+        </div>
+        <div class="content">
+            <p>Xin chào,</p>
+            
+            <p>Chúng tôi xin thông báo rằng tin tuyển dụng <strong th:text="${jobTitle}">[Tên công việc]</strong> sẽ hết hạn vào ngày <strong th:text="${expirationDate}">[Ngày hết hạn]</strong>.</p>
+            
+            <p>Nếu bạn muốn tiếp tục tuyển dụng, vui lòng gia hạn tin tuyển dụng trước thời điểm hết hạn.</p>
+            
+            <p>Vui lòng đăng nhập vào tài khoản nhà tuyển dụng của bạn để quản lý tin tuyển dụng:</p>
+            
+            <p style="text-align: center;">
+                <a th:href="${siteUrl} + '/employer/jobs'" class="button">Quản lý tin tuyển dụng</a>
+            </p>
+            
+            <p>Trân trọng,<br/>Đội ngũ Fjobs</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Fjobs. Tất cả quyền được bảo lưu.</p>
+            <p>Email này được gửi tự động, vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>

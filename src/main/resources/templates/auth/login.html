@@ -127,7 +127,7 @@
                                     <input type="password" class="form-control" id="matKhau" name="matKhau" placeholder="Nhập mật khẩu" required>
                                 </div>
                                 <div class="form-text text-end">
-                                    <a href="#" class="text-decoration-none">Quên mật khẩu?</a>
+                                    <a th:href="@{/forgot-password}" class="text-decoration-none">Quên mật khẩu?</a>
                                 </div>
                             </div>
 
@@ -145,6 +145,7 @@
 
                         <div class="text-center mt-4">
                             <p class="mb-0">Chưa có tài khoản NTD? <a th:href="@{/register}" class="text-decoration-none fw-bold" style="color: #667eea;">Đăng ký ngay</a></p>
+                            <p class="mb-0"><a th:href="@{/password-reset-guide}" class="text-decoration-none" style="color: #6c757d;">Hướng dẫn sử dụng chức năng quên mật khẩu</a></p>
                         </div>
                     </div>
                 </div>

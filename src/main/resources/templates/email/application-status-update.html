@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật trạng thái ứng tuyển</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #9C27B0; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .status-approved { color: #4CAF50; font-weight: bold; }
+        .status-rejected { color: #f44336; font-weight: bold; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #9C27B0; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { padding: 20px; text-align: center; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Cập nhật trạng thái ứng tuyển</h1>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${applicantName}">[Tên ứng viên]</strong>,</p>
+            
+            <p>Chúng tôi xin thông báo về trạng thái ứng tuyển của bạn cho công việc <strong th:text="${jobTitle}">[Tên công việc]</strong>:</p>
+            
+            <p>Trạng thái: <span th:class="'status-' + (${status} == 'Được chấp thuận' ? 'approved' : 'rejected')" th:text="${status}">[Trạng thái]</span></p>
+            
+            <p th:if="${message}">
+                <strong>Thông điệp từ nhà tuyển dụng:</strong> <span th:text="${message}">[Thông điệp]</span>
+            </p>
+            
+            <p th:unless="${message}">
+                Vui lòng đăng nhập vào tài khoản của bạn để xem chi tiết:
+            </p>
+            
+            <p style="text-align: center;">
+                <a th:href="${siteUrl} + '/login'" class="button">Đăng nhập</a>
+            </p>
+            
+            <p>Trân trọng,<br/>Đội ngũ Fjobs</p>
+        </div>
+        <div class="footer">
+            <p>© 2025 Fjobs. Tất cả quyền được bảo lưu.</p>
+            <p>Email này được gửi tự động, vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>
