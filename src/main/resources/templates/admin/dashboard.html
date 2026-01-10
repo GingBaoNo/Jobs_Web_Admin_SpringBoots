@@ -222,6 +222,7 @@
                                         <th>Tiêu đề</th>
                                         <th>Công ty</th>
                                         <th>Trạng thái</th>
+                                        <th>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -233,6 +234,11 @@
                                             <span th:if="${job.trangThaiDuyet == 'Đã duyệt'}" class="badge bg-success">Đã duyệt</span>
                                             <span th:if="${job.trangThaiDuyet == 'Chờ duyệt'}" class="badge bg-warning">Chờ duyệt</span>
                                             <span th:if="${job.trangThaiDuyet == 'Từ chối'}" class="badge bg-danger">Từ chối</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/jobs/{id}(id=${job.maCongViec})}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 </tbody>

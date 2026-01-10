@@ -223,9 +223,9 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary" th:attr="onclick=|viewCompanyDetails('${company.maCongTy}', '${company.tenCongTy}', '${company.tenNguoiDaiDien}', '${company.maSoThue}', '${company.diaChi}', '${company.emailCty}')|" data-bs-toggle="modal" data-bs-target="#viewCompanyModal">
-                                                    <i class="fas fa-eye"></i> Xem
-                                                </button>
+                                                <a th:href="@{/company/{id}(id=${company.maCongTy})}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết công ty">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                                 <form th:action="@{/admin/companies/{id}/reject(id=${company.maCongTy})}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy xác thực công ty này?')">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                                         <i class="fas fa-times"></i> Hủy xác thực

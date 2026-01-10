@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Chi tiết công ty'">Chi tiết công ty</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar .nav-link {
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+        }
+        .navbar .nav-link i {
+            font-size: 0.8rem !important;
+            margin-right: 0.5rem;
+        }
+        .company-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            border-radius: 0 0 20px 20px;
+        }
+        .company-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 5px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .badge-success {
+            background: #28a745;
+        }
+        .badge-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .verified-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .section-title {
+            position: relative;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        .info-card {
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .job-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-briefcase me-2"></i>Tìm Việc Làm
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/jobs"><i class="fas fa-briefcase me-1"></i>Việc làm</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/companies"><i class="fas fa-building me-1"></i>Công ty</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        <!-- Show user profile dropdown when logged in -->
+                        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>
+                                <span sec:authentication="name"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/"><i class="fas fa-home me-2"></i>Trang chủ</a></li>
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Hồ sơ của tôi</a></li>
+                                <li sec:authorize="hasRole('NV')"><a class="dropdown-item" href="/employee/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Bảng điều khiển NV</a></li>
+                                <li sec:authorize="hasRole('NTD')"><a class="dropdown-item" href="/employer/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Bảng điều khiển NTD</a></li>
+                                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Quản trị viên</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Show login/register links when not logged in -->
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt me-1"></i>Đăng nhập</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="nav-link" href="/register"><i class="fas fa-user-plus me-1"></i>Đăng ký</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Company Header -->
+    <section class="company-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center text-md-start">
+                    <div class="position-relative">
+                        <img th:if="${company.hinhAnhCty}" th:src="${company.hinhAnhCty}" alt="Logo công ty" class="company-logo img-fluid">
+                        <i th:unless="${company.hinhAnhCty}" class="fas fa-building fa-5x text-white"></i>
+                        <div th:if="${company.daXacThuc}" class="verified-badge" title="Công ty đã xác thực">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9 mt-4 mt-md-0">
+                    <h1 class="mb-3" th:text="${company.tenCongTy}">Tên công ty</h1>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i> <span th:text="${company.diaChi}">Địa chỉ công ty</span></p>
+                            <p class="mb-1"><i class="fas fa-user me-2"></i> <span th:text="${company.tenNguoiDaiDien}">Người đại diện</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><i class="fas fa-envelope me-2"></i> <span th:text="${company.emailCty}">Email công ty</span></p>
+                            <p class="mb-1"><i class="fas fa-phone me-2"></i> <span th:text="${company.soDienThoaiCty}">Số điện thoại</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success fs-6" th:if="${company.daXacThuc}">Công ty đã xác thực</span>
+                        <span class="badge bg-warning fs-6" th:unless="${company.daXacThuc}">Công ty chưa xác thực</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- About Company -->
+                <div class="card card-shadow mb-4">
+                    <div class="card-header bg-white">
+                        <h3 class="section-title mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Giới thiệu</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-card bg-light">
+                            <h5><i class="fas fa-building me-2 text-primary"></i>Thông tin công ty</h5>
+                            <p class="mb-0">Chúng tôi là một công ty chuyên nghiệp trong lĩnh vực của mình, cam kết mang lại môi trường làm việc tốt nhất cho nhân viên và dịch vụ chất lượng cao cho khách hàng.</p>
+                        </div>
+                        
+                        <div class="info-card bg-light">
+                            <h5><i class="fas fa-briefcase me-2 text-primary"></i>Mô tả công việc</h5>
+                            <p class="mb-0">Công ty chúng tôi hiện đang tuyển dụng nhiều vị trí hấp dẫn với môi trường làm việc chuyên nghiệp, chế độ đãi ngộ tốt và cơ hội thăng tiến rõ ràng.</p>
+                        </div>
+                        
+                        <div class="info-card bg-light">
+                            <h5><i class="fas fa-map-marker-alt me-2 text-primary"></i>Địa điểm làm việc</h5>
+                            <p class="mb-0" th:text="${company.diaChi}">Địa chỉ công ty</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Open Positions -->
+                <div class="card card-shadow">
+                    <div class="card-header bg-white">
+                        <h3 class="section-title mb-0"><i class="fas fa-briefcase me-2 text-success"></i>Vị trí đang tuyển dụng</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Show message if no jobs found -->
+                        <div th:if="${#lists.isEmpty(jobs)}" class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i> Công ty hiện chưa có vị trí tuyển dụng nào.
+                        </div>
+
+                        <!-- Show job listings if available -->
+                        <div th:unless="${#lists.isEmpty(jobs)}" class="row">
+                            <div class="col-md-6 mb-4" th:each="job : ${jobs}">
+                                <div class="card job-card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title" th:text="${job.tieuDe}">Tên công việc</h5>
+                                        <p class="card-text text-muted" th:utext="${#strings.abbreviate(job.chiTiet, 100)}">Mô tả công việc ngắn gọn...</p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-dollar-sign me-1 text-success"></i>
+                                            <strong th:if="${job.luong != null}" th:text="${#numbers.formatInteger(job.luong, 0)} + ' VNĐ'">Thương lượng</strong>
+                                            <strong th:unless="${job.luong != null}">Thương lượng</strong>
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                            <small th:text="${company.diaChi}">Địa điểm</small>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-white border-top-0">
+                                        <small class="text-muted">
+                                            <i class="far fa-clock me-1"></i>
+                                            <span th:text="${#temporals.format(job.ngayDang, 'dd/MM/yyyy')}">Ngày đăng</span>
+                                        </small>
+                                        <a th:href="@{/jobs/{id}(id=${job.maCongViec})}" class="btn btn-sm btn-primary float-end">Chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Company Info -->
+                <div class="card card-shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin liên hệ</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-user me-3 text-primary fa-2x"></i>
+                            <div>
+                                <h6 class="mb-0">Người đại diện</h6>
+                                <p class="mb-0 text-muted" th:text="${company.tenNguoiDaiDien}">Tên người đại diện</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-envelope me-3 text-info fa-2x"></i>
+                            <div>
+                                <h6 class="mb-0">Email</h6>
+                                <p class="mb-0 text-muted" th:text="${company.emailCty}">Email công ty</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-phone me-3 text-success fa-2x"></i>
+                            <div>
+                                <h6 class="mb-0">Điện thoại</h6>
+                                <p class="mb-0 text-muted" th:text="${company.soDienThoaiCty}">Số điện thoại</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt me-3 text-warning fa-2x"></i>
+                            <div>
+                                <h6 class="mb-0">Địa chỉ</h6>
+                                <p class="mb-0 text-muted" th:text="${company.diaChi}">Địa chỉ công ty</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media -->
+                <div class="card card-shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Mạng xã hội</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fab fa-facebook-f me-2"></i>Facebook
+                            </a>
+                            <a href="#" class="btn btn-outline-success">
+                                <i class="fab fa-linkedin-in me-2"></i>LinkedIn
+                            </a>
+                            <a href="#" class="btn btn-outline-danger">
+                                <i class="fab fa-youtube me-2"></i>YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-briefcase me-2"></i>Hệ Thống Tìm Kiếm Việc Làm</h5>
+                    <p>Giúp kết nối nhà tuyển dụng và người tìm việc một cách hiệu quả và nhanh chóng.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5><i class="fas fa-link me-2"></i>Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none"><i class="fas fa-chevron-right me-2"></i>Trang chủ</a></li>
+                        <li><a href="/jobs" class="text-light text-decoration-none"><i class="fas fa-chevron-right me-2"></i>Việc làm</a></li>
+                        <li><a href="/companies" class="text-light text-decoration-none"><i class="fas fa-chevron-right me-2"></i>Công ty</a></li>
+                        <li><a href="#" class="text-light text-decoration-none"><i class="fas fa-chevron-right me-2"></i>Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5><i class="fas fa-envelope me-2"></i>Liên hệ</h5>
+                    <p><i class="fas fa-envelope me-2"></i> info@timviec.com</p>
+                    <p><i class="fas fa-phone me-2"></i> 0123 456 789</p>
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 Hệ Thống Tìm Kiếm Việc Làm. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -125,7 +125,13 @@
 
                             <div class="mb-3">
                                 <label for="diaChi" class="form-label">Địa chỉ</label>
-                                <textarea class="form-control" id="diaChi" name="diaChi" rows="3" th:text="${company.diaChi}" oninput="updateMapFromAddress()"></textarea>
+                                <div class="input-group">
+                                    <textarea class="form-control" id="diaChi" name="diaChi" rows="3" th:text="${company.diaChi}" placeholder="Nhập địa chỉ đầy đủ: Số nhà, tên đường, phường, quận, thành phố. Ví dụ: 123 Đường Nguyễn Văn Cừ, Phường 3, Quận 5, TP. Hồ Chí Minh"></textarea>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateMapFromAddress()" title="Cập nhật vị trí trên bản đồ">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Nhập địa chỉ đầy đủ để hệ thống dễ dàng xác định vị trí trên bản đồ. Ví dụ: 123 Đường Nguyễn Văn Cừ, Phường 3, Quận 5, TP. Hồ Chí Minh</div>
                             </div>
 
                             <!-- Thêm phần tích hợp OpenStreetMap -->
@@ -133,7 +139,7 @@
                                 <label class="form-label">Vị trí trên bản đồ</label>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span>Vị trí công ty trên bản đồ</span>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="updateMapFromAddress()">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="updateMapFromAddress()" title="Cập nhật vị trí trên bản đồ từ địa chỉ đã nhập">
                                         <i class="fas fa-sync-alt"></i> Cập nhật từ địa chỉ
                                     </button>
                                 </div>
@@ -248,12 +254,17 @@
             const defaultCenter = [10.8231, 106.6297];
 
             // Lấy tọa độ từ form nếu có
-            const kinhDo = parseFloat(document.getElementById('kinhDo').value);
-            const viDo = parseFloat(document.getElementById('viDo').value);
+            const kinhDoElement = document.getElementById('kinhDo');
+            const viDoElement = document.getElementById('viDo');
 
             let center = defaultCenter;
-            if (!isNaN(kinhDo) && !isNaN(viDo)) {
-                center = [viDo, kinhDo];
+            if (kinhDoElement && viDoElement) {
+                const kinhDo = parseFloat(kinhDoElement.value);
+                const viDo = parseFloat(viDoElement.value);
+
+                if (!isNaN(kinhDo) && !isNaN(viDo)) {
+                    center = [viDo, kinhDo];
+                }
             }
 
             // Tạo instance của map
@@ -270,51 +281,12 @@
             // Sự kiện khi kéo marker
             marker.on('dragend', function(event) {
                 const markerPos = marker.getLatLng();
-                document.getElementById('kinhDo').value = markerPos.lng;
-                document.getElementById('viDo').value = markerPos.lat;
+                const kinhDoElement = document.getElementById('kinhDo');
+                const viDoElement = document.getElementById('viDo');
+
+                if (kinhDoElement) kinhDoElement.value = markerPos.lng;
+                if (viDoElement) viDoElement.value = markerPos.lat;
             });
-        }
-
-        // Hàm cập nhật bản đồ từ địa chỉ sử dụng Nominatim API
-        async function updateMapFromAddress() {
-            const address = document.getElementById('diaChi').value;
-            if (address) {
-                try {
-                    // Sử dụng Nominatim API để tìm kiếm địa chỉ
-                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-                    const data = await response.json();
-
-                    if (data && data.length > 0) {
-                        const lat = parseFloat(data[0].lat);
-                        const lon = parseFloat(data[0].lon);
-
-                        // Cập nhật vị trí bản đồ
-                        map.setView([lat, lon], 15);
-
-                        // Cập nhật marker
-                        map.removeLayer(marker);
-                        marker = L.marker([lat, lon], {draggable: true}).addTo(map);
-
-                        // Cập nhật tọa độ vào form
-                        document.getElementById('kinhDo').value = lon;
-                        document.getElementById('viDo').value = lat;
-
-                        // Thêm sự kiện kéo thả cho marker mới
-                        marker.on('dragend', function(event) {
-                            const markerPos = marker.getLatLng();
-                            document.getElementById('kinhDo').value = markerPos.lng;
-                            document.getElementById('viDo').value = markerPos.lat;
-                        });
-                    } else {
-                        alert('Không tìm thấy địa chỉ trên bản đồ. Vui lòng kiểm tra lại.');
-                    }
-                } catch (error) {
-                    console.error('Lỗi khi tìm kiếm địa chỉ:', error);
-                    alert('Lỗi khi tìm kiếm địa chỉ. Vui lòng thử lại.');
-                }
-            } else {
-                alert('Vui lòng nhập địa chỉ trước khi cập nhật bản đồ.');
-            }
         }
 
         // Hàm tải và khởi tạo Leaflet (OpenStreetMap)
@@ -347,6 +319,130 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadLeafletMap();
         });
+
+        // Biến để theo dõi thời gian gọi API cuối cùng (để tránh spam)
+        let lastApiCallTime = 0;
+        const MIN_INTERVAL = 1000; // 1 giây giữa các lần gọi API
+
+        // Hàm cập nhật bản đồ từ địa chỉ sử dụng Nominatim API
+        async function updateMapFromAddress() {
+            const now = Date.now();
+            if (now - lastApiCallTime < MIN_INTERVAL) {
+                alert('Vui lòng đợi một chút trước khi cập nhật lại bản đồ.');
+                return;
+            }
+            lastApiCallTime = now;
+
+            const addressElement = document.getElementById('diaChi');
+            if (!addressElement) {
+                console.error('Không tìm thấy phần tử có id="diaChi"');
+                return;
+            }
+
+            const address = addressElement.value.trim();
+            if (!address) {
+                alert('Vui lòng nhập địa chỉ trước khi cập nhật bản đồ.');
+                return;
+            }
+
+            // Kiểm tra độ dài tối thiểu của địa chỉ
+            if (address.length < 5) {
+                alert('Vui lòng nhập địa chỉ có ít nhất 5 ký tự để có thể xác định vị trí.');
+                return;
+            }
+
+            try {
+                // Sử dụng Nominatim API để tìm kiếm địa chỉ
+                // Thêm các tham số để tăng độ chính xác và tuân thủ chính sách
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1&limit=1&countrycodes=VN`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'JobPortalApp/1.0 contact:gingbao266@gmail.com' // Tuân thủ chính sách của Nominatim
+                    },
+                    // Đặt timeout để tránh chờ lâu
+                    signal: AbortSignal.timeout(10000) // 10 giây timeout
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('429 - Quá nhiều yêu cầu. Vui lòng đợi vài phút rồi thử lại.');
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+
+                    if (isNaN(lat) || isNaN(lon)) {
+                        alert('Không thể xác định tọa độ từ địa chỉ này. Vui lòng kiểm tra lại.');
+                        return;
+                    }
+
+                    // Cập nhật vị trí bản đồ
+                    map.setView([lat, lon], 15);
+
+                    // Cập nhật marker
+                    map.removeLayer(marker);
+                    marker = L.marker([lat, lon], {draggable: true}).addTo(map);
+
+                    // Cập nhật tọa độ vào form
+                    const kinhDoElement = document.getElementById('kinhDo');
+                    const viDoElement = document.getElementById('viDo');
+
+                    if (kinhDoElement) kinhDoElement.value = lon;
+                    if (viDoElement) viDoElement.value = lat;
+
+                    // Thêm sự kiện kéo thả cho marker mới
+                    marker.on('dragend', function(event) {
+                        const markerPos = marker.getLatLng();
+                        const kinhDoElement = document.getElementById('kinhDo');
+                        const viDoElement = document.getElementById('viDo');
+
+                        if (kinhDoElement) kinhDoElement.value = markerPos.lng;
+                        if (viDoElement) viDoElement.value = markerPos.lat;
+                    });
+                } else {
+                    // Cung cấp gợi ý cụ thể hơn cho người dùng
+                    const addressInput = document.getElementById('diaChi').value;
+                    let suggestion = 'Không tìm thấy địa chỉ trên bản đồ. ';
+
+                    // Kiểm tra một số điều kiện phổ biến
+                    if (addressInput.length < 10) {
+                        suggestion += 'Vui lòng nhập địa chỉ đầy đủ hơn (ít nhất 10 ký tự). ';
+                    }
+
+                    if (!/\d/.test(addressInput)) {
+                        suggestion += 'Đảm bảo địa chỉ có chứa số nhà. ';
+                    }
+
+                    if (!/[a-zA-Z\u00C0-\u017F]/.test(addressInput)) {
+                        suggestion += 'Đảm bảo địa chỉ có chứa tên đường. ';
+                    }
+
+                    suggestion += 'Ví dụ: "123 Đường Nguyễn Văn Cừ, Phường 3, Quận 5, TP. Hồ Chí Minh".';
+
+                    alert(suggestion);
+                }
+            } catch (error) {
+                console.error('Lỗi khi tìm kiếm địa chỉ:', error);
+
+                // Xử lý lỗi cụ thể
+                if (error.name === 'TypeError') {
+                    alert('Lỗi định dạng dữ liệu. Vui lòng kiểm tra lại địa chỉ.');
+                } else if (error.message.includes('429')) {
+                    alert('Quá nhiều yêu cầu gửi đến máy chủ bản đồ. Vui lòng đợi vài phút rồi thử lại.');
+                } else if (error.message.includes('AbortError')) {
+                    alert('Yêu cầu tìm kiếm địa chỉ đã hết thời gian chờ. Vui lòng thử lại.');
+                } else {
+                    alert('Lỗi kết nối đến dịch vụ bản đồ. Vui lòng kiểm tra kết nối mạng và thử lại.\nChi tiết: ' + error.message);
+                }
+            }
+        }
     </script>
 </body>
 </html>
