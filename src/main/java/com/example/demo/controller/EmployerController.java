@@ -476,8 +476,31 @@ public class EmployerController {
         // Lấy hồ sơ người tìm việc
         Optional<Profile> profileOpt = profileService.getProfileByUser(appliedJob.getEmployee());
 
+        // Kiểm tra nếu ứng viên sử dụng hồ sơ CV cụ thể khi ứng tuyển
+        Object cvProfileToShow = null;
+        String cvProfileType = null; // Loại hồ sơ để dễ kiểm tra trong template
+
+        if (appliedJob.getCvProfile() != null) {
+            // Ưu tiên hiển thị hồ sơ CV cụ thể được chọn khi ứng tuyển
+            cvProfileToShow = appliedJob.getCvProfile();
+            cvProfileType = "cv_profile"; // Đánh dấu đây là hồ sơ CV cụ thể
+        } else if (appliedJob.getUrlCvUngTuyen() != null && !appliedJob.getUrlCvUngTuyen().isEmpty()) {
+            // Nếu có URL CV cụ thể trong applied_job, tạo một object tạm
+            Map<String, Object> tempCv = new HashMap<>();
+            tempCv.put("urlCv", appliedJob.getUrlCvUngTuyen());
+            tempCv.put("hoTen", appliedJob.getEmployee().getTenHienThi());
+            cvProfileToShow = tempCv;
+            cvProfileType = "url_cv"; // Đánh dấu đây là URL CV
+        } else {
+            // Nếu không có hồ sơ CV cụ thể, sử dụng hồ sơ mặc định
+            cvProfileToShow = profileOpt.orElse(null);
+            cvProfileType = "profile"; // Đánh dấu đây là hồ sơ mặc định
+        }
+
         model.addAttribute("appliedJob", appliedJob);
-        model.addAttribute("profile", profileOpt.orElse(null));
+        model.addAttribute("profile", profileOpt.orElse(null)); // Giữ lại để tương thích backward
+        model.addAttribute("cvProfileToShow", cvProfileToShow); // Thêm biến mới để hiển thị hồ sơ đúng
+        model.addAttribute("cvProfileType", cvProfileType); // Thêm biến để xác định loại hồ sơ
         model.addAttribute("user", user);
         model.addAttribute("company", company);
         model.addAttribute("title", "Chi tiết Ứng viên");

@@ -97,28 +97,64 @@
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <p><strong>Số điện thoại:</strong> <span th:text="${profile != null ? profile.soDienThoai : 'Không có'}">Không có</span></p>
+                                            <!-- Hiển thị số điện thoại từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                            <p><strong>Số điện thoại:</strong>
+                                                <span th:if="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${cvProfileToShow.soDienThoai}">Không có</span>
+                                                <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${profile != null ? profile.soDienThoai : 'Không có'}">Không có</span>
+                                            </p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p><strong>Ngày sinh:</strong> <span th:text="${profile != null ? profile.ngaySinh : 'Không có'}">Không có</span></p>
+                                            <!-- Hiển thị ngày sinh từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                            <p><strong>Ngày sinh:</strong>
+                                                <span th:if="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${cvProfileToShow.ngaySinh}">Không có</span>
+                                                <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${profile != null ? profile.ngaySinh : 'Không có'}">Không có</span>
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <p><strong>Giới tính:</strong> <span th:text="${profile != null ? profile.gioiTinh : 'Không có'}">Không có</span></p>
+                                            <!-- Hiển thị giới tính từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                            <p><strong>Giới tính:</strong>
+                                                <span th:if="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${cvProfileToShow.gioiTinh}">Không có</span>
+                                                <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                      th:text="${profile != null ? profile.gioiTinh : 'Không có'}">Không có</span>
+                                            </p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Ngày ứng tuyển:</strong> <span th:text="${appliedJob.ngayUngTuyen}">Không có</span></p>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <p><strong>Vị trí mong muốn:</strong> <span th:text="${profile != null ? profile.viTriMongMuon : 'Không có'}">Không có</span></p>
+                                        <!-- Hiển thị vị trí mong muốn từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                        <p><strong>Vị trí mong muốn:</strong>
+                                            <span th:if="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${cvProfileToShow.viTriMongMuon}">Không có</span>
+                                            <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${profile != null ? profile.viTriMongMuon : 'Không có'}">Không có</span>
+                                        </p>
                                     </div>
                                     <div class="mb-3">
-                                        <p><strong>Giới thiệu bản thân:</strong> <span th:text="${profile != null ? profile.gioiThieuBanThan : 'Không có'}">Không có</span></p>
+                                        <!-- Hiển thị giới thiệu bản thân từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                        <p><strong>Giới thiệu bản thân:</strong>
+                                            <span th:if="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${cvProfileToShow.gioiThieuBanThan}">Không có</span>
+                                            <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${profile != null ? profile.gioiThieuBanThan : 'Không có'}">Không có</span>
+                                        </p>
                                     </div>
                                     <div class="mb-3">
-                                        <p><strong>Kinh nghiệm:</strong> <span th:text="${profile != null ? profile.kinhNghiem : 'Không có'}">Không có</span></p>
+                                        <!-- Hiển thị kinh nghiệm từ hồ sơ CV cụ thể nếu có, ngược lại từ hồ sơ mặc định -->
+                                        <p><strong>Kinh nghiệm:</strong>
+                                            <span th:if="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${cvProfileToShow.kinhNghiem}">Không có</span>
+                                            <span th:unless="${cvProfileType == 'cv_profile'}"
+                                                  th:text="${profile != null ? profile.kinhNghiem : 'Không có'}">Không có</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -141,36 +177,70 @@
                                     <h5 class="card-title mb-0"><i class="fas fa-file me-2"></i>CV của ứng viên</h5>
                                 </div>
                                 <div class="card-body text-center">
-                                    <div th:if="${appliedJob.urlCvUngTuyen != null}" class="text-center">
+                                    <!-- Ưu tiên hiển thị hồ sơ CV cụ thể nếu có -->
+                                    <div th:if="${cvProfileType == 'cv_profile' and cvProfileToShow.urlCv != null}" class="text-center">
                                         <i class="fas fa-file fa-5x text-muted mb-3"></i>
-                                        <p class="mb-0" th:text="${appliedJob.urlCvUngTuyen}">Tên file</p>
+                                        <p class="mb-0 text-success" th:text="${cvProfileToShow.urlCv}">Tên file từ hồ sơ CV cụ thể</p>
                                         <div class="mt-3">
-                                            <a th:href="${appliedJob.urlCvUngTuyen}" class="btn btn-primary me-2">
-                                                <i class="fas fa-download me-1"></i>Tải về CV
+                                            <a th:href="${cvProfileToShow.urlCv}" class="btn btn-success me-2">
+                                                <i class="fas fa-download me-1"></i>Tải về CV cụ thể
                                             </a>
-                                            <a th:href="${appliedJob.urlCvUngTuyen}" target="_blank" class="btn btn-outline-primary">
+                                            <a th:href="${cvProfileToShow.urlCv}" target="_blank" class="btn btn-outline-success">
                                                 <i class="fas fa-eye me-1"></i>Xem
                                             </a>
                                         </div>
-                                        <small class="text-muted d-block mt-2">(*) CV được gửi cho đơn ứng tuyển này</small>
+                                        <small class="text-muted d-block mt-2">(*) CV được chọn cụ thể cho hồ sơ này</small>
                                     </div>
-                                    <div th:unless="${appliedJob.urlCvUngTuyen != null}">
-                                        <div th:if="${profile != null and profile.urlCv != null}" class="text-center">
+                                    <!-- Nếu không có hồ sơ CV cụ thể nhưng có URL CV trong applied_job -->
+                                    <div th:unless="${cvProfileType == 'cv_profile' and cvProfileToShow.urlCv != null}">
+                                        <div th:if="${cvProfileType == 'url_cv'}" class="text-center">
                                             <i class="fas fa-file fa-5x text-muted mb-3"></i>
-                                            <p class="mb-0 text-success" th:text="${profile.urlCv}">Tên file từ hồ sơ</p>
+                                            <p class="mb-0" th:text="${cvProfileToShow.urlCv}">Tên file</p>
                                             <div class="mt-3">
-                                                <a th:href="${profile.urlCv}" class="btn btn-success me-2">
-                                                    <i class="fas fa-download me-1"></i>Tải về CV từ hồ sơ
+                                                <a th:href="${cvProfileToShow.urlCv}" class="btn btn-primary me-2">
+                                                    <i class="fas fa-download me-1"></i>Tải về CV
                                                 </a>
-                                                <a th:href="${profile.urlCv}" target="_blank" class="btn btn-outline-success">
+                                                <a th:href="${cvProfileToShow.urlCv}" target="_blank" class="btn btn-outline-primary">
                                                     <i class="fas fa-eye me-1"></i>Xem
                                                 </a>
                                             </div>
-                                            <small class="text-muted d-block mt-2"></small>
+                                            <small class="text-muted d-block mt-2">(*) CV được gửi cho đơn ứng tuyển này</small>
                                         </div>
-                                        <div th:unless="${profile != null and profile.urlCv != null}" class="text-center">
-                                            <i class="fas fa-file fa-5x text-muted mb-3"></i>
-                                            <p class="text-muted">Người dùng chưa upload CV nào</p>
+                                        <!-- Nếu không có CV cụ thể trong applied_job, hiển thị từ hồ sơ mặc định -->
+                                        <div th:unless="${cvProfileType == 'url_cv'}">
+                                            <div th:if="${appliedJob.urlCvUngTuyen != null}" class="text-center">
+                                                <i class="fas fa-file fa-5x text-muted mb-3"></i>
+                                                <p class="mb-0" th:text="${appliedJob.urlCvUngTuyen}">Tên file</p>
+                                                <div class="mt-3">
+                                                    <a th:href="${appliedJob.urlCvUngTuyen}" class="btn btn-primary me-2">
+                                                        <i class="fas fa-download me-1"></i>Tải về CV
+                                                    </a>
+                                                    <a th:href="${appliedJob.urlCvUngTuyen}" target="_blank" class="btn btn-outline-primary">
+                                                        <i class="fas fa-eye me-1"></i>Xem
+                                                    </a>
+                                                </div>
+                                                <small class="text-muted d-block mt-2">(*) CV được gửi cho đơn ứng tuyển này</small>
+                                            </div>
+                                            <!-- Nếu không có CV cụ thể trong applied_job, hiển thị từ hồ sơ mặc định -->
+                                            <div th:unless="${appliedJob.urlCvUngTuyen != null}">
+                                                <div th:if="${profile != null and profile.urlCv != null}" class="text-center">
+                                                    <i class="fas fa-file fa-5x text-muted mb-3"></i>
+                                                    <p class="mb-0 text-info" th:text="${profile.urlCv}">Tên file từ hồ sơ mặc định</p>
+                                                    <div class="mt-3">
+                                                        <a th:href="${profile.urlCv}" class="btn btn-info me-2">
+                                                            <i class="fas fa-download me-1"></i>Tải về CV từ hồ sơ
+                                                        </a>
+                                                        <a th:href="${profile.urlCv}" target="_blank" class="btn btn-outline-info">
+                                                            <i class="fas fa-eye me-1"></i>Xem
+                                                        </a>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-2">(*) CV mặc định từ hồ sơ người dùng</small>
+                                                </div>
+                                                <div th:unless="${profile != null and profile.urlCv != null}" class="text-center">
+                                                    <i class="fas fa-file fa-5x text-muted mb-3"></i>
+                                                    <p class="text-muted">Người dùng chưa upload CV nào</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
