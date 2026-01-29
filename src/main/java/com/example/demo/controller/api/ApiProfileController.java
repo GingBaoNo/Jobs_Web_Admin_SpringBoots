@@ -5,6 +5,7 @@ import com.example.demo.entity.User;
 import com.example.demo.service.ProfileService;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.ApiResponseUtil;
+import com.example.demo.utils.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -99,7 +100,7 @@ public class ApiProfileController {
         }
     }
 
-    // API mới: Tạo hồ sơ cho người dùng hiện tại
+    // API mới: Tạo hồ sơ cho người dùng hiện tại (JSON data)
     @PostMapping("/my-profile")
     public ResponseEntity<?> createMyProfile(@RequestBody Profile profile) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -132,6 +133,96 @@ public class ApiProfileController {
                     return ApiResponseUtil.created(profileMap);
                 } catch (RuntimeException e) {
                     return ApiResponseUtil.error(e.getMessage());
+                }
+            } else {
+                return ApiResponseUtil.error("User not found");
+            }
+        } else {
+            return ApiResponseUtil.error("User not authenticated");
+        }
+    }
+
+    // API mới: Tạo hồ sơ cho người dùng hiện tại cùng với upload avatar và CV
+    @PostMapping(value = "/my-profile-with-files", consumes = "multipart/form-data")
+    public ResponseEntity<?> createMyProfileWithFiles(
+            @RequestParam("hoTen") String hoTen,
+            @RequestParam("gioiTinh") String gioiTinh,
+            @RequestParam(value = "ngaySinh", required = false) String ngaySinhStr,
+            @RequestParam(value = "soDienThoai", required = false) String soDienThoai,
+            @RequestParam(value = "trinhDoHocVan", required = false) String trinhDoHocVan,
+            @RequestParam(value = "tinhTrangHocVan", required = false) String tinhTrangHocVan,
+            @RequestParam(value = "kinhNghiem", required = false) String kinhNghiem,
+            @RequestParam(value = "tongNamKinhNghiem", required = false) String tongNamKinhNghiemStr,
+            @RequestParam(value = "gioiThieuBanThan", required = false) String gioiThieuBanThan,
+            @RequestParam(value = "congKhai", required = false) Boolean congKhai,
+            @RequestParam(value = "viTriMongMuon", required = false) String viTriMongMuon,
+            @RequestParam(value = "thoiGianMongMuon", required = false) String thoiGianMongMuon,
+            @RequestParam(value = "loaiThoiGianLamViec", required = false) String loaiThoiGianLamViec,
+            @RequestParam(value = "hinhThucLamViec", required = false) String hinhThucLamViec,
+            @RequestParam(value = "loaiLuongMongMuon", required = false) String loaiLuongMongMuon,
+            @RequestParam(value = "mucLuongMongMuon", required = false) Integer mucLuongMongMuon,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "cvFile", required = false) MultipartFile cvFile) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            String username = authentication.getName();
+            Optional<User> user = userService.getUserByTaiKhoan(username);
+            if (user.isPresent()) {
+                try {
+                    // Chuyển đổi chuỗi ngày tháng và số năm kinh nghiệm nếu có
+                    java.time.LocalDate ngaySinh = null;
+                    if (ngaySinhStr != null && !ngaySinhStr.isEmpty()) {
+                        ngaySinh = java.time.LocalDate.parse(ngaySinhStr);
+                    }
+
+                    java.math.BigDecimal tongNamKinhNghiem = null;
+                    if (tongNamKinhNghiemStr != null && !tongNamKinhNghiemStr.isEmpty()) {
+                        tongNamKinhNghiem = new java.math.BigDecimal(tongNamKinhNghiemStr);
+                    }
+
+                    // Tạo hồ sơ mới
+                    Profile createdProfile = profileService.createProfileForUser(user.get(), hoTen, gioiTinh);
+
+                    // Cập nhật các trường khác của hồ sơ
+                    createdProfile.setNgaySinh(ngaySinh);
+                    createdProfile.setSoDienThoai(soDienThoai);
+                    createdProfile.setTrinhDoHocVan(trinhDoHocVan);
+                    createdProfile.setTinhTrangHocVan(tinhTrangHocVan);
+                    createdProfile.setKinhNghiem(kinhNghiem);
+                    createdProfile.setTongNamKinhNghiem(tongNamKinhNghiem);
+                    createdProfile.setGioiThieuBanThan(gioiThieuBanThan);
+                    createdProfile.setCongKhai(congKhai != null ? congKhai : false);
+                    createdProfile.setViTriMongMuon(viTriMongMuon);
+                    createdProfile.setThoiGianMongMuon(thoiGianMongMuon);
+                    createdProfile.setLoaiThoiGianLamViec(loaiThoiGianLamViec);
+                    createdProfile.setHinhThucLamViec(hinhThucLamViec);
+                    createdProfile.setLoaiLuongMongMuon(loaiLuongMongMuon);
+                    createdProfile.setMucLuongMongMuon(mucLuongMongMuon);
+
+                    // Upload avatar nếu có
+                    if (avatarFile != null && !avatarFile.isEmpty()) {
+                        String uploadDir = "uploads/avatars/";
+                        String fileName = avatarFile.getOriginalFilename();
+                        String savedFileName = FileUploadUtil.saveFile(uploadDir, fileName, avatarFile);
+                        String avatarUrl = "/uploads/avatars/" + savedFileName;
+                        createdProfile.setUrlAnhDaiDien(avatarUrl);
+                    }
+
+                    // Upload CV nếu có
+                    if (cvFile != null && !cvFile.isEmpty()) {
+                        String uploadDir = "uploads/cvs/";
+                        String fileName = cvFile.getOriginalFilename();
+                        String savedFileName = FileUploadUtil.saveFile(uploadDir, fileName, cvFile);
+                        String cvUrl = "/uploads/cvs/" + savedFileName;
+                        createdProfile.setUrlCv(cvUrl);
+                    }
+
+                    Profile savedProfile = profileService.updateProfile(createdProfile);
+                    Map<String, Object> profileMap = convertProfileToMap(savedProfile);
+                    return ApiResponseUtil.created(profileMap);
+                } catch (Exception e) {
+                    return ApiResponseUtil.error("Error creating profile with files: " + e.getMessage());
                 }
             } else {
                 return ApiResponseUtil.error("User not found");
