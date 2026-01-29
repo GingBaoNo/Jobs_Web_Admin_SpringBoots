@@ -264,11 +264,11 @@
                                     <div th:if="${cvProfileType == 'cv_profile'}" class="text-center">
                                         <div th:if="${cvProfileToShow.urlAnhDaiDien != null}">
                                             <img th:src="${cvProfileToShow.urlAnhDaiDien}" alt="Ảnh đại diện" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-                                            <p class="mb-0 text-success" th:text="${cvProfileToShow.urlCv}">Tên file từ hồ sơ CV cụ thể</p>
+                                            <!-- <p class="mb-0 text-success" th:text="${cvProfileToShow.urlCv}">Tên file từ hồ sơ CV cụ thể</p> -->
                                         </div>
                                         <div th:unless="${cvProfileToShow.urlAnhDaiDien != null}">
                                             <i class="fas fa-file fa-5x text-muted mb-3"></i>
-                                            <p class="mb-0 text-success" th:text="${cvProfileToShow.urlCv}">Tên file từ hồ sơ CV cụ thể</p>
+                                            <!-- <p class="mb-0 text-success" th:text="${cvProfileToShow.urlCv}">Tên file từ hồ sơ CV cụ thể</p> -->
                                         </div>
                                         <div class="mt-3">
                                             <a th:href="${cvProfileToShow.urlCv}" class="btn btn-success me-2">
@@ -278,7 +278,7 @@
                                                 <i class="fas fa-eye me-1"></i>Xem
                                             </a>
                                         </div>
-                                        <small class="text-muted d-block mt-2">(*) CV được chọn cụ thể cho hồ sơ này</small>
+                                        <small class="text-muted d-block mt-2"></small>
                                     </div>
                                     <!-- Nếu không có hồ sơ CV cụ thể nhưng có URL CV trong applied_job -->
                                     <div th:unless="${cvProfileType == 'cv_profile'}">
