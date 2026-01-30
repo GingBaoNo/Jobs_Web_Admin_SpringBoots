@@ -95,9 +95,9 @@ CREATE TABLE company (
     da_xac_thuc BIT NOT NULL DEFAULT 0,
     ngay_tao DATETIME NULL DEFAULT GETDATE(),
     mo_ta_cong_ty NVARCHAR(MAX) NULL, -- Trường nâng cấp 1
-    trang_thai NVARCHAR(20) NOT NULL DEFAULT N'Đang hoạt động', -- >> TRƯỜNG MỚI ĐÃ THÊM ĐỂ KHẮC PHỤC LỖI
-    kinh_do DECIMAL(12, 8) NULL,  -- >> TRƯỜNG MỚI: Kinh độ (điều chỉnh độ chính xác)
-    vi_do DECIMAL(11, 8) NULL,   -- >> TRƯỜNG MỚI: Vĩ độ
+    trang_thai NVARCHAR(20) NOT NULL DEFAULT N'Đang hoạt động',
+    kinh_do DECIMAL(12, 8) NULL, 
+    vi_do DECIMAL(11, 8) NULL,   
     CONSTRAINT fk_company_employer FOREIGN KEY (ma_nha_tuyen_dung) REFERENCES [user] (ma_nguoi_dung) ON DELETE CASCADE
 );
 
@@ -106,8 +106,8 @@ CREATE TABLE jobdetails (
     ma_cong_ty INT NOT NULL,
     ma_linh_vuc INT NOT NULL,
     ma_hinh_thuc INT NOT NULL,
-    ma_vi_tri_cong_viec INT NULL, -- Trường nâng cấp 2
-    ma_cap_do_kinh_nghiem INT NULL, -- Trường nâng cấp 3
+    ma_vi_tri_cong_viec INT NULL,
+    ma_cap_do_kinh_nghiem INT NULL, 
 
     tieu_de NVARCHAR(255) NOT NULL,
     luong INT NULL,
@@ -129,8 +129,8 @@ CREATE TABLE jobdetails (
     trang_thai_duyet NVARCHAR(20) NOT NULL DEFAULT N'Chờ duyệt' CHECK (trang_thai_duyet IN (N'Chờ duyệt', N'Đã duyệt', N'Từ chối')),
     trang_thai_tin_tuyen NVARCHAR(10) NOT NULL DEFAULT N'Mở' CHECK (trang_thai_tin_tuyen IN (N'Mở', N'Đã đóng', N'Tạm dừng')),
 
-    kinh_do DECIMAL(12, 8) NULL,  -- >> TRƯỜNG MỚI: Kinh độ (điều chỉnh độ chính xác)
-    vi_do DECIMAL(11, 8) NULL,   -- >> TRƯỜNG MỚI: Vĩ độ
+    kinh_do DECIMAL(12, 8) NULL, 
+    vi_do DECIMAL(11, 8) NULL,   
 
     CONSTRAINT fk_job_company FOREIGN KEY (ma_cong_ty) REFERENCES company (ma_cong_ty) ON DELETE CASCADE,
     CONSTRAINT fk_job_field FOREIGN KEY (ma_linh_vuc) REFERENCES work_fields (ma_linh_vuc) ON DELETE NO ACTION,
@@ -174,8 +174,8 @@ GO
 CREATE TABLE cv_profiles (
     ma_ho_so_cv INT PRIMARY KEY IDENTITY(1,1),
     ma_nguoi_tim_viec INT NOT NULL,
-    ten_ho_so NVARCHAR(255) NOT NULL, -- Tên hồ sơ do người dùng đặt
-    mo_ta NVARCHAR(MAX),              -- Mô tả ngắn về hồ sơ
+    ten_ho_so NVARCHAR(255) NOT NULL, 
+    mo_ta NVARCHAR(MAX),              
     url_anh_dai_dien NVARCHAR(MAX),
     ho_ten NVARCHAR(255) NOT NULL,
     gioi_tinh NVARCHAR(20) NOT NULL,
@@ -186,7 +186,7 @@ CREATE TABLE cv_profiles (
     kinh_nghiem NVARCHAR(MAX),
     tong_nam_kinh_nghiem DECIMAL(4, 2) DEFAULT 0,
     gioi_thieu_ban_than NVARCHAR(MAX),
-    url_cv NVARCHAR(MAX),             -- Đường dẫn đến file CV
+    url_cv NVARCHAR(MAX),            
     cong_khai BIT NOT NULL DEFAULT 0,
     vi_tri_mong_muon NVARCHAR(255) NULL,
     thoi_gian_mong_muon NVARCHAR(255) NULL,
@@ -196,7 +196,7 @@ CREATE TABLE cv_profiles (
     muc_luong_mong_muon INT NULL,
     ngay_tao DATETIME NULL DEFAULT GETDATE(),
     ngay_cap_nhat DATETIME NULL DEFAULT GETDATE(),
-    la_mac_dinh BIT NOT NULL DEFAULT 0, -- Hồ sơ mặc định
+    la_mac_dinh BIT NOT NULL DEFAULT 0, 
     CONSTRAINT fk_cv_profile_employee FOREIGN KEY (ma_nguoi_tim_viec) REFERENCES [user] (ma_nguoi_dung) ON DELETE CASCADE
 );
 
@@ -209,7 +209,7 @@ CREATE TABLE applied_jobs (
     danh_gia_ntd TINYINT NULL,
     ngay_ung_tuyen DATETIME NULL DEFAULT GETDATE(),
     url_cv_ung_tuyen NVARCHAR(MAX) NULL,
-    ma_ho_so_cv INT NULL, -- Tham chiếu đến hồ sơ CV được sử dụng khi ứng tuyển
+    ma_ho_so_cv INT NULL, 
     CONSTRAINT uk_employee_job UNIQUE (ma_nguoi_tim_viec, ma_cong_viec),
     CONSTRAINT fk_applied_jobs_employee FOREIGN KEY (ma_nguoi_tim_viec) REFERENCES [user] (ma_nguoi_dung) ON DELETE CASCADE,
     CONSTRAINT fk_applied_jobs_job FOREIGN KEY (ma_cong_viec) REFERENCES jobdetails (ma_cong_viec) ON DELETE NO ACTION,
