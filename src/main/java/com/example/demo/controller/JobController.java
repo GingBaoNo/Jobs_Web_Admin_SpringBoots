@@ -29,12 +29,9 @@ public class JobController {
     
     @Autowired
     private WorkFieldService workFieldService;
-    
+
     @Autowired
     private WorkTypeService workTypeService;
-    
-    @Autowired
-    private LocationService locationService;
 
     @Autowired
     private WorkDisciplineService workDisciplineService;
@@ -114,7 +111,6 @@ public class JobController {
         model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
         model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
         model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-        model.addAttribute("locations", locationService.getProvinces());
         model.addAttribute("title", "Tạo tin tuyển dụng mới");
 
         return "employer/job-form";
@@ -219,7 +215,6 @@ public class JobController {
             model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
             model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
             model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-            model.addAttribute("locations", locationService.getProvinces());
             model.addAttribute("job", job);
             return "employer/job-form";
         }
@@ -252,7 +247,6 @@ public class JobController {
         model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
         model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
         model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-        model.addAttribute("locations", locationService.getProvinces());
         model.addAttribute("title", "Chỉnh sửa tin tuyển dụng");
 
         return "employer/job-form";
@@ -389,7 +383,6 @@ public class JobController {
             model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
             model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
             model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-            model.addAttribute("locations", locationService.getProvinces());
             model.addAttribute("job", job);
             return "employer/job-form";
         }
@@ -498,7 +491,6 @@ public class JobController {
             model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
             model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
             model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-            model.addAttribute("locations", locationService.getProvinces());
 
             // Thêm dữ liệu cho sidebar
             // 1. Việc làm theo lĩnh vực (top 5 lĩnh vực có nhiều việc làm nhất)
@@ -593,7 +585,6 @@ public class JobController {
             model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
             model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
             model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-            model.addAttribute("locations", locationService.getProvinces());
 
             // Dữ liệu mặc định tránh lỗi
             model.addAttribute("topFields", new java.util.ArrayList<>());

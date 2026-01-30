@@ -16,16 +16,16 @@ public class EmployerJobController {
     
     @Autowired
     private JobDetailService jobDetailService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private CompanyService companyService;
-    
+
     @Autowired
     private WorkFieldService workFieldService;
-    
+
     @Autowired
     private WorkTypeService workTypeService;
 
@@ -38,8 +38,6 @@ public class EmployerJobController {
     @Autowired
     private ExperienceLevelService experienceLevelService;
 
-    @Autowired
-    private LocationService locationService;
 
     // Trang tạo công việc mới cho nhà tuyển dụng
     @GetMapping("/employer/job/create")
@@ -61,7 +59,6 @@ public class EmployerJobController {
         model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
         model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
         model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-        model.addAttribute("locations", locationService.getProvinces());
         model.addAttribute("title", "Đăng tin tuyển dụng mới");
 
         return "employer/job-create";
@@ -157,7 +154,6 @@ public class EmployerJobController {
             model.addAttribute("workDisciplines", workDisciplineService.getAllWorkDisciplines());
             model.addAttribute("jobPositions", jobPositionService.getAllJobPositions());
             model.addAttribute("experienceLevels", experienceLevelService.getAllExperienceLevels());
-            model.addAttribute("locations", locationService.getProvinces());
             model.addAttribute("job", job);
             return "employer/job-create";
         }

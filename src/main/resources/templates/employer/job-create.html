@@ -205,19 +205,6 @@
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="diaDiem" class="form-label">Địa điểm làm việc</label>
-                                        <select class="form-select" id="diaDiem" multiple>
-                                            <option th:each="location : ${locations}"
-                                                    th:value="${location.maDiaDiem}"
-                                                    th:text="${location.tenDiaDiem}">Địa điểm</option>
-                                        </select>
-                                        <div class="form-text">Giữ phím Ctrl để chọn nhiều địa điểm</div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Thêm trường địa chỉ cụ thể cho công việc -->
                             <div class="row">
