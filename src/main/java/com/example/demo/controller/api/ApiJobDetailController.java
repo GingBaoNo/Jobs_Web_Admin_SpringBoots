@@ -33,6 +33,8 @@ public class ApiJobDetailController {
     public ResponseEntity<?> getJobDetailById(@PathVariable Integer id) {
         JobDetail jobDetail = jobDetailService.getJobById(id);
         if (jobDetail != null) {
+
+            jobDetailService.incrementViewCount(jobDetail);
             // Trả về job detail với thông tin công ty đầy đủ (bao gồm logo)
             Map<String, Object> jobDetailMap = convertJobDetailToMap(jobDetail);
             return ApiResponseUtil.success("Job detail retrieved successfully", jobDetailMap);
