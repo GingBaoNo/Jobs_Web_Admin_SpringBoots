@@ -4,6 +4,7 @@ import com.example.demo.entity.AppliedJob;
 import com.example.demo.entity.JobDetail;
 import com.example.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -44,4 +45,8 @@ public interface AppliedJobRepository extends JpaRepository<AppliedJob, Integer>
            "LEFT JOIN FETCH aj.cvProfile " +
            "WHERE aj.maUngTuyen = :id")
     Optional<AppliedJob> findByIdWithDetails(@Param("id") Integer id);
+
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("DELETE FROM AppliedJob a WHERE a.employee.maNguoiDung = :maNguoiTimViec")
+    void deleteByMaNguoiTimViec(@org.springframework.data.repository.query.Param("maNguoiTimViec") Integer maNguoiTimViec);
 }

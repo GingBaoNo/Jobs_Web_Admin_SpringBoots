@@ -5,6 +5,7 @@ import com.example.demo.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,10 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
     // Phương thức đếm số lượng công ty đã xác thực
     int countByDaXacThucTrue();
+
+    List<Company> findByUserMaNguoiDung(Integer maNhaTuyenDung);
+
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("DELETE FROM Company c WHERE c.user.maNguoiDung = :maNhaTuyenDung")
+    void deleteByMaNhaTuyenDung(@org.springframework.data.repository.query.Param("maNhaTuyenDung") Integer maNhaTuyenDung);
 }

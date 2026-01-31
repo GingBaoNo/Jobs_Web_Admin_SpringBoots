@@ -108,26 +108,31 @@ public class ApiProfileController {
             Optional<User> user = userService.getUserByTaiKhoan(username);
             if (user.isPresent()) {
                 try {
-                    Profile createdProfile = profileService.createProfileForUser(user.get(), profile.getHoTen(), profile.getGioiTinh());
-                    // Cập nhật các trường khác của hồ sơ
-                    createdProfile.setUrlAnhDaiDien(profile.getUrlAnhDaiDien());
-                    createdProfile.setNgaySinh(profile.getNgaySinh());
-                    createdProfile.setSoDienThoai(profile.getSoDienThoai());
-                    createdProfile.setTrinhDoHocVan(profile.getTrinhDoHocVan());
-                    createdProfile.setTinhTrangHocVan(profile.getTinhTrangHocVan());
-                    createdProfile.setKinhNghiem(profile.getKinhNghiem());
-                    createdProfile.setTongNamKinhNghiem(profile.getTongNamKinhNghiem());
-                    createdProfile.setGioiThieuBanThan(profile.getGioiThieuBanThan());
-                    createdProfile.setUrlCv(profile.getUrlCv());
-                    createdProfile.setCongKhai(profile.getCongKhai());
-                    createdProfile.setViTriMongMuon(profile.getViTriMongMuon());
-                    createdProfile.setThoiGianMongMuon(profile.getThoiGianMongMuon());
-                    createdProfile.setLoaiThoiGianLamViec(profile.getLoaiThoiGianLamViec());
-                    createdProfile.setHinhThucLamViec(profile.getHinhThucLamViec());
-                    createdProfile.setLoaiLuongMongMuon(profile.getLoaiLuongMongMuon());
-                    createdProfile.setMucLuongMongMuon(profile.getMucLuongMongMuon());
+                    // Tự động tạo hồ sơ mặc định nếu người dùng chưa có hồ sơ
+                    Profile existingProfile = profileService.createDefaultProfileIfNotExists(user.get());
 
-                    Profile savedProfile = profileService.updateProfile(createdProfile);
+                    // Cập nhật các trường của hồ sơ
+                    if (profile.getHoTen() != null) existingProfile.setHoTen(profile.getHoTen());
+                    if (profile.getGioiTinh() != null) existingProfile.setGioiTinh(profile.getGioiTinh());
+                    if (profile.getUrlAnhDaiDien() != null) existingProfile.setUrlAnhDaiDien(profile.getUrlAnhDaiDien());
+                    if (profile.getNgaySinh() != null) existingProfile.setNgaySinh(profile.getNgaySinh());
+                    if (profile.getSoDienThoai() != null) existingProfile.setSoDienThoai(profile.getSoDienThoai());
+                    if (profile.getTrinhDoHocVan() != null) existingProfile.setTrinhDoHocVan(profile.getTrinhDoHocVan());
+                    if (profile.getTinhTrangHocVan() != null) existingProfile.setTinhTrangHocVan(profile.getTinhTrangHocVan());
+                    if (profile.getKinhNghiem() != null) existingProfile.setKinhNghiem(profile.getKinhNghiem());
+                    if (profile.getTongNamKinhNghiem() != null) existingProfile.setTongNamKinhNghiem(profile.getTongNamKinhNghiem());
+                    if (profile.getGioiThieuBanThan() != null) existingProfile.setGioiThieuBanThan(profile.getGioiThieuBanThan());
+                    if (profile.getUrlCv() != null) existingProfile.setUrlCv(profile.getUrlCv());
+                    if (profile.getCongKhai() != null) existingProfile.setCongKhai(profile.getCongKhai());
+                    if (profile.getViTriMongMuon() != null) existingProfile.setViTriMongMuon(profile.getViTriMongMuon());
+                    if (profile.getThoiGianMongMuon() != null) existingProfile.setThoiGianMongMuon(profile.getThoiGianMongMuon());
+                    if (profile.getLoaiThoiGianLamViec() != null) existingProfile.setLoaiThoiGianLamViec(profile.getLoaiThoiGianLamViec());
+                    if (profile.getHinhThucLamViec() != null) existingProfile.setHinhThucLamViec(profile.getHinhThucLamViec());
+                    if (profile.getLoaiLuongMongMuon() != null) existingProfile.setLoaiLuongMongMuon(profile.getLoaiLuongMongMuon());
+                    if (profile.getMucLuongMongMuon() != null) existingProfile.setMucLuongMongMuon(profile.getMucLuongMongMuon());
+                    existingProfile.setNgayCapNhat(java.time.LocalDateTime.now());
+
+                    Profile savedProfile = profileService.updateProfile(existingProfile);
                     Map<String, Object> profileMap = convertProfileToMap(savedProfile);
                     return ApiResponseUtil.created(profileMap);
                 } catch (RuntimeException e) {
@@ -149,36 +154,33 @@ public class ApiProfileController {
             String username = authentication.getName();
             Optional<User> user = userService.getUserByTaiKhoan(username);
             if (user.isPresent()) {
-                Optional<Profile> existingProfile = profileService.getProfileByUser(user.get());
-                if (existingProfile.isPresent()) {
-                    Profile updatedProfile = existingProfile.get();
-                    // Cập nhật các trường của hồ sơ - chỉ cập nhật nếu giá trị không phải là null
-                    if (profile.getHoTen() != null) updatedProfile.setHoTen(profile.getHoTen());
-                    if (profile.getGioiTinh() != null) updatedProfile.setGioiTinh(profile.getGioiTinh());
-                    if (profile.getUrlAnhDaiDien() != null) updatedProfile.setUrlAnhDaiDien(profile.getUrlAnhDaiDien());
-                    if (profile.getNgaySinh() != null) updatedProfile.setNgaySinh(profile.getNgaySinh());
-                    if (profile.getSoDienThoai() != null) updatedProfile.setSoDienThoai(profile.getSoDienThoai());
-                    if (profile.getTrinhDoHocVan() != null) updatedProfile.setTrinhDoHocVan(profile.getTrinhDoHocVan());
-                    if (profile.getTinhTrangHocVan() != null) updatedProfile.setTinhTrangHocVan(profile.getTinhTrangHocVan());
-                    if (profile.getKinhNghiem() != null) updatedProfile.setKinhNghiem(profile.getKinhNghiem());
-                    if (profile.getTongNamKinhNghiem() != null) updatedProfile.setTongNamKinhNghiem(profile.getTongNamKinhNghiem());
-                    if (profile.getGioiThieuBanThan() != null) updatedProfile.setGioiThieuBanThan(profile.getGioiThieuBanThan());
-                    if (profile.getUrlCv() != null) updatedProfile.setUrlCv(profile.getUrlCv());
-                    if (profile.getCongKhai() != null) updatedProfile.setCongKhai(profile.getCongKhai());
-                    if (profile.getViTriMongMuon() != null) updatedProfile.setViTriMongMuon(profile.getViTriMongMuon());
-                    if (profile.getThoiGianMongMuon() != null) updatedProfile.setThoiGianMongMuon(profile.getThoiGianMongMuon());
-                    if (profile.getLoaiThoiGianLamViec() != null) updatedProfile.setLoaiThoiGianLamViec(profile.getLoaiThoiGianLamViec());
-                    if (profile.getHinhThucLamViec() != null) updatedProfile.setHinhThucLamViec(profile.getHinhThucLamViec());
-                    if (profile.getLoaiLuongMongMuon() != null) updatedProfile.setLoaiLuongMongMuon(profile.getLoaiLuongMongMuon());
-                    if (profile.getMucLuongMongMuon() != null) updatedProfile.setMucLuongMongMuon(profile.getMucLuongMongMuon());
-                    updatedProfile.setNgayCapNhat(java.time.LocalDateTime.now());
+                // Tự động tạo hồ sơ mặc định nếu người dùng chưa có hồ sơ
+                Profile existingProfile = profileService.createDefaultProfileIfNotExists(user.get());
 
-                    Profile savedProfile = profileService.updateProfile(updatedProfile);
-                    Map<String, Object> profileMap = convertProfileToMap(savedProfile);
-                    return ApiResponseUtil.success("Profile updated successfully", profileMap);
-                } else {
-                    return ApiResponseUtil.error("Profile not found for current user");
-                }
+                // Cập nhật các trường của hồ sơ - chỉ cập nhật nếu giá trị không phải là null
+                if (profile.getHoTen() != null) existingProfile.setHoTen(profile.getHoTen());
+                if (profile.getGioiTinh() != null) existingProfile.setGioiTinh(profile.getGioiTinh());
+                if (profile.getUrlAnhDaiDien() != null) existingProfile.setUrlAnhDaiDien(profile.getUrlAnhDaiDien());
+                if (profile.getNgaySinh() != null) existingProfile.setNgaySinh(profile.getNgaySinh());
+                if (profile.getSoDienThoai() != null) existingProfile.setSoDienThoai(profile.getSoDienThoai());
+                if (profile.getTrinhDoHocVan() != null) existingProfile.setTrinhDoHocVan(profile.getTrinhDoHocVan());
+                if (profile.getTinhTrangHocVan() != null) existingProfile.setTinhTrangHocVan(profile.getTinhTrangHocVan());
+                if (profile.getKinhNghiem() != null) existingProfile.setKinhNghiem(profile.getKinhNghiem());
+                if (profile.getTongNamKinhNghiem() != null) existingProfile.setTongNamKinhNghiem(profile.getTongNamKinhNghiem());
+                if (profile.getGioiThieuBanThan() != null) existingProfile.setGioiThieuBanThan(profile.getGioiThieuBanThan());
+                if (profile.getUrlCv() != null) existingProfile.setUrlCv(profile.getUrlCv());
+                if (profile.getCongKhai() != null) existingProfile.setCongKhai(profile.getCongKhai());
+                if (profile.getViTriMongMuon() != null) existingProfile.setViTriMongMuon(profile.getViTriMongMuon());
+                if (profile.getThoiGianMongMuon() != null) existingProfile.setThoiGianMongMuon(profile.getThoiGianMongMuon());
+                if (profile.getLoaiThoiGianLamViec() != null) existingProfile.setLoaiThoiGianLamViec(profile.getLoaiThoiGianLamViec());
+                if (profile.getHinhThucLamViec() != null) existingProfile.setHinhThucLamViec(profile.getHinhThucLamViec());
+                if (profile.getLoaiLuongMongMuon() != null) existingProfile.setLoaiLuongMongMuon(profile.getLoaiLuongMongMuon());
+                if (profile.getMucLuongMongMuon() != null) existingProfile.setMucLuongMongMuon(profile.getMucLuongMongMuon());
+                existingProfile.setNgayCapNhat(java.time.LocalDateTime.now());
+
+                Profile savedProfile = profileService.updateProfile(existingProfile);
+                Map<String, Object> profileMap = convertProfileToMap(savedProfile);
+                return ApiResponseUtil.success("Profile updated successfully", profileMap);
             } else {
                 return ApiResponseUtil.error("User not found");
             }
@@ -196,6 +198,9 @@ public class ApiProfileController {
             Optional<User> user = userService.getUserByTaiKhoan(username);
             if (user.isPresent()) {
                 try {
+                    // Tự động tạo hồ sơ mặc định nếu người dùng chưa có hồ sơ
+                    profileService.createDefaultProfileIfNotExists(user.get());
+
                     Profile updatedProfile = profileService.updateAvatar(user.get(), avatarFile);
                     Map<String, Object> profileMap = convertProfileToMap(updatedProfile);
                     return ApiResponseUtil.success("Avatar updated successfully", profileMap);
@@ -219,6 +224,9 @@ public class ApiProfileController {
             Optional<User> user = userService.getUserByTaiKhoan(username);
             if (user.isPresent()) {
                 try {
+                    // Tự động tạo hồ sơ mặc định nếu người dùng chưa có hồ sơ
+                    profileService.createDefaultProfileIfNotExists(user.get());
+
                     Profile updatedProfile = profileService.updateCv(user.get(), cvFile);
                     Map<String, Object> profileMap = convertProfileToMap(updatedProfile);
                     return ApiResponseUtil.success("CV updated successfully", profileMap);

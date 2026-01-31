@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.CvProfile;
 import com.example.demo.entity.Profile;
 import com.example.demo.entity.User;
 import com.example.demo.repository.ProfileRepository;
@@ -18,6 +19,9 @@ public class ProfileService {
     @Autowired
     private ProfileRepository profileRepository;
 
+    @Autowired
+    private CvProfileService cvProfileService;
+
     public List<Profile> getAllProfiles() {
         return profileRepository.findAll();
     }
@@ -35,7 +39,49 @@ public class ProfileService {
     }
 
     public Profile updateProfile(Profile profile) {
-        return profileRepository.save(profile);
+        Profile updatedProfile = profileRepository.save(profile);
+
+        // Đồng bộ thông tin sang hồ sơ CV mặc định nếu có
+        syncProfileToDefaultCvProfile(updatedProfile);
+
+        return updatedProfile;
+    }
+
+    /**
+     * Đồng bộ thông tin từ hồ sơ cá nhân sang hồ sơ CV mặc định
+     */
+    private void syncProfileToDefaultCvProfile(Profile profile) {
+        try {
+            // Lấy hồ sơ CV mặc định của người dùng
+            CvProfile defaultCvProfile = cvProfileService.getDefaultCvProfile(profile.getUser());
+
+            if (defaultCvProfile != null) {
+                // Cập nhật thông tin từ hồ sơ cá nhân sang hồ sơ CV mặc định
+                defaultCvProfile.setHoTen(profile.getHoTen());
+                defaultCvProfile.setGioiTinh(profile.getGioiTinh());
+                defaultCvProfile.setNgaySinh(profile.getNgaySinh());
+                defaultCvProfile.setSoDienThoai(profile.getSoDienThoai());
+                defaultCvProfile.setTrinhDoHocVan(profile.getTrinhDoHocVan());
+                defaultCvProfile.setTinhTrangHocVan(profile.getTinhTrangHocVan());
+                defaultCvProfile.setKinhNghiem(profile.getKinhNghiem());
+                defaultCvProfile.setTongNamKinhNghiem(profile.getTongNamKinhNghiem());
+                defaultCvProfile.setGioiThieuBanThan(profile.getGioiThieuBanThan());
+                defaultCvProfile.setUrlAnhDaiDien(profile.getUrlAnhDaiDien());
+                defaultCvProfile.setUrlCv(profile.getUrlCv());
+                defaultCvProfile.setViTriMongMuon(profile.getViTriMongMuon());
+                defaultCvProfile.setThoiGianMongMuon(profile.getThoiGianMongMuon());
+                defaultCvProfile.setLoaiThoiGianLamViec(profile.getLoaiThoiGianLamViec());
+                defaultCvProfile.setHinhThucLamViec(profile.getHinhThucLamViec());
+                defaultCvProfile.setLoaiLuongMongMuon(profile.getLoaiLuongMongMuon());
+                defaultCvProfile.setMucLuongMongMuon(profile.getMucLuongMongMuon());
+
+                // Cập nhật lại hồ sơ CV mặc định
+                cvProfileService.updateCvProfile(defaultCvProfile.getMaHoSoCv(), defaultCvProfile, profile.getUser());
+            }
+        } catch (Exception e) {
+            // Ghi log nếu có lỗi xảy ra trong quá trình đồng bộ
+            System.err.println("Lỗi khi đồng bộ hồ sơ cá nhân sang hồ sơ CV mặc định: " + e.getMessage());
+        }
     }
 
     public void deleteProfile(Integer id) {
@@ -123,5 +169,27 @@ public class ProfileService {
         profile.setUrlCv(cvUrl);
 
         return profileRepository.save(profile);
+    }
+
+    /**
+     * Tự động tạo hồ sơ mặc định nếu người dùng chưa có hồ sơ
+     */
+    public Profile createDefaultProfileIfNotExists(User user) {
+        Optional<Profile> existingProfile = profileRepository.findByUser(user);
+
+        if (!existingProfile.isPresent()) {
+            // Tạo hồ sơ mặc định với thông tin cơ bản từ người dùng
+            Profile defaultProfile = new Profile();
+            defaultProfile.setUser(user);
+            defaultProfile.setHoTen(user.getTenHienThi() != null ? user.getTenHienThi() : user.getTaiKhoan());
+            defaultProfile.setGioiTinh("Nam"); // Mặc định là Nam, người dùng có thể cập nhật sau
+            defaultProfile.setSoDienThoai(user.getSoDienThoai());
+            defaultProfile.setNgayTao(java.time.LocalDateTime.now());
+            defaultProfile.setNgayCapNhat(java.time.LocalDateTime.now());
+
+            return profileRepository.save(defaultProfile);
+        }
+
+        return existingProfile.get();
     }
 }

@@ -41,18 +41,26 @@ public class CvProfileService {
         if (cvProfileRepository.existsByNguoiTimViecAndTenHoSo(currentUser, cvProfile.getTenHoSo())) {
             throw new RuntimeException("Tên hồ sơ đã tồn tại");
         }
-        
+
         cvProfile.setNguoiTimViec(currentUser);
-        
-        // Nếu đây là hồ sơ đầu tiên hoặc hồ sơ mặc định đang được tạo, đặt làm mặc định
-        if (getDefaultCvProfile(currentUser) == null || cvProfile.getLaMacDinh()) {
+
+        // Nếu người dùng muốn đặt hồ sơ này làm mặc định
+        if (cvProfile.getLaMacDinh()) {
+            // Hủy bỏ trạng thái mặc định của các hồ sơ khác
+            unsetDefaultCvProfileForUser(currentUser);
             cvProfile.setLaMacDinh(true);
         } else {
-            cvProfile.setLaMacDinh(false); // Chỉ có một hồ sơ mặc định
+            // Nếu không có hồ sơ nào là mặc định và đây là hồ sơ đầu tiên, đặt làm mặc định
+            if (getDefaultCvProfile(currentUser) == null) {
+                cvProfile.setLaMacDinh(true);
+            }
         }
-        
+
         return cvProfileRepository.save(cvProfile);
     }
+
+    @Autowired
+    private ProfileService profileService;
 
     public CvProfile updateCvProfile(Integer id, CvProfile updatedCvProfile, User currentUser) {
         CvProfile existingCvProfile = getCvProfileById(id, currentUser);
@@ -62,7 +70,7 @@ public class CvProfileService {
                 cvProfileRepository.existsByNguoiTimViecAndTenHoSo(currentUser, updatedCvProfile.getTenHoSo())) {
                 throw new RuntimeException("Tên hồ sơ đã tồn tại");
             }
-            
+
             // Cập nhật các thuộc tính
             existingCvProfile.setTenHoSo(updatedCvProfile.getTenHoSo());
             existingCvProfile.setMoTa(updatedCvProfile.getMoTa());
@@ -84,16 +92,62 @@ public class CvProfileService {
             existingCvProfile.setHinhThucLamViec(updatedCvProfile.getHinhThucLamViec());
             existingCvProfile.setLoaiLuongMongMuon(updatedCvProfile.getLoaiLuongMongMuon());
             existingCvProfile.setMucLuongMongMuon(updatedCvProfile.getMucLuongMongMuon());
-            
+
             // Nếu hồ sơ này được đặt làm mặc định, hủy mặc định của các hồ sơ khác
             if (updatedCvProfile.getLaMacDinh()) {
                 unsetDefaultCvProfileForUser(currentUser);
                 existingCvProfile.setLaMacDinh(true);
             }
-            
-            return cvProfileRepository.save(existingCvProfile);
+
+            CvProfile savedCvProfile = cvProfileRepository.save(existingCvProfile);
+
+            // Nếu đây là hồ sơ mặc định, đồng bộ thông tin sang hồ sơ cá nhân
+            if (savedCvProfile.getLaMacDinh()) {
+                syncCvProfileToProfile(savedCvProfile);
+            }
+
+            return savedCvProfile;
         }
         return null;
+    }
+
+    /**
+     * Đồng bộ thông tin từ hồ sơ CV mặc định sang hồ sơ cá nhân
+     */
+    private void syncCvProfileToProfile(CvProfile cvProfile) {
+        try {
+            // Lấy hồ sơ cá nhân của người dùng
+            Optional<com.example.demo.entity.Profile> profileOpt = profileService.getProfileByUser(cvProfile.getNguoiTimViec());
+
+            if (profileOpt.isPresent()) {
+                com.example.demo.entity.Profile profile = profileOpt.get();
+
+                // Cập nhật thông tin từ hồ sơ CV sang hồ sơ cá nhân
+                profile.setHoTen(cvProfile.getHoTen());
+                profile.setGioiTinh(cvProfile.getGioiTinh());
+                profile.setNgaySinh(cvProfile.getNgaySinh());
+                profile.setSoDienThoai(cvProfile.getSoDienThoai());
+                profile.setTrinhDoHocVan(cvProfile.getTrinhDoHocVan());
+                profile.setTinhTrangHocVan(cvProfile.getTinhTrangHocVan());
+                profile.setKinhNghiem(cvProfile.getKinhNghiem());
+                profile.setTongNamKinhNghiem(cvProfile.getTongNamKinhNghiem());
+                profile.setGioiThieuBanThan(cvProfile.getGioiThieuBanThan());
+                profile.setUrlAnhDaiDien(cvProfile.getUrlAnhDaiDien());
+                profile.setUrlCv(cvProfile.getUrlCv());
+                profile.setViTriMongMuon(cvProfile.getViTriMongMuon());
+                profile.setThoiGianMongMuon(cvProfile.getThoiGianMongMuon());
+                profile.setLoaiThoiGianLamViec(cvProfile.getLoaiThoiGianLamViec());
+                profile.setHinhThucLamViec(cvProfile.getHinhThucLamViec());
+                profile.setLoaiLuongMongMuon(cvProfile.getLoaiLuongMongMuon());
+                profile.setMucLuongMongMuon(cvProfile.getMucLuongMongMuon());
+
+                // Cập nhật lại hồ sơ cá nhân
+                profileService.updateProfile(profile);
+            }
+        } catch (Exception e) {
+            // Ghi log nếu có lỗi xảy ra trong quá trình đồng bộ
+            System.err.println("Lỗi khi đồng bộ hồ sơ CV sang hồ sơ cá nhân: " + e.getMessage());
+        }
     }
 
     @Transactional

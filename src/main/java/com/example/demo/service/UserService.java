@@ -59,8 +59,63 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    @Autowired
+    private com.example.demo.repository.MessageRepository messageRepository;
+
+    @Autowired
+    private com.example.demo.repository.AppliedJobRepository appliedJobRepository;
+
+    @Autowired
+    private com.example.demo.repository.SavedJobRepository savedJobRepository;
+
+    @Autowired
+    private com.example.demo.repository.ProfileRepository profileRepository;
+
+    @Autowired
+    private com.example.demo.repository.CvProfileRepository cvProfileRepository;
+
+    @Autowired
+    private com.example.demo.repository.CompanyRepository companyRepository;
+
+    @org.springframework.transaction.annotation.Transactional
     public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            // Xóa các bản ghi liên quan trước để tránh lỗi ràng buộc khóa ngoại
+
+            // Nếu là người tìm việc, xóa các ứng tuyển của họ trước
+            if ("NV".equals(user.getRole().getTenVaiTro())) {
+                appliedJobRepository.deleteByMaNguoiTimViec(id);
+            }
+
+            // Xóa các công việc đã lưu bởi người dùng này
+            savedJobRepository.deleteByMaNguoiDung(id);
+
+            // Xóa hồ sơ người dùng nếu có
+            profileRepository.deleteByMaNguoiTimViec(id);
+
+            // Xóa các hồ sơ CV của người dùng
+            cvProfileRepository.deleteByMaNguoiTimViec(id);
+
+            // Nếu là nhà tuyển dụng, xử lý công ty của họ
+            if ("NTD".equals(user.getRole().getTenVaiTro())) {
+                // Xóa các công việc của công ty do người dùng này tạo
+                companyRepository.findByUserMaNguoiDung(id).forEach(company -> {
+                    // Xóa các công việc liên quan đến công ty
+                    // (giả sử có repository cho jobdetails)
+                    // jobDetailRepository.deleteByCompanyId(company.getMaCongTy());
+                });
+
+                // Xóa công ty do người dùng này tạo
+                companyRepository.deleteByMaNhaTuyenDung(id);
+            }
+
+            // Xóa tin nhắn gửi và nhận bởi người dùng này
+            messageRepository.deleteByMaNguoiGuiOrMaNguoiNhan(id, id);
+
+            // Cuối cùng xóa người dùng
+            userRepository.deleteById(id);
+        }
     }
     
     public boolean existsByTaiKhoan(String taiKhoan) {
@@ -80,13 +135,12 @@ public class UserService {
         User savedUser = saveUser(user);
 
         // Tự động tạo hồ sơ mặc định cho người dùng mới nếu là NV (người xin việc)
-        if ("NV".equals(role.getTenVaiTro())) {
-            try {
-                profileService.createProfileForUser(savedUser, tenHienThi, "Nam"); // Mặc định giới tính là Nam, người dùng có thể cập nhật sau
-            } catch (Exception e) {
-                // Nếu tạo hồ sơ thất bại, log lỗi nhưng không làm hỏng quá trình đăng ký
-                System.err.println("Không thể tạo hồ sơ mặc định cho người dùng " + taiKhoan + ": " + e.getMessage());
-            }
+        // hoặc cho bất kỳ người dùng nào không có hồ sơ
+        try {
+            profileService.createDefaultProfileIfNotExists(savedUser);
+        } catch (Exception e) {
+            // Nếu tạo hồ sơ thất bại, log lỗi nhưng không làm hỏng quá trình đăng ký
+            System.err.println("Không thể tạo hồ sơ mặc định cho người dùng " + taiKhoan + ": " + e.getMessage());
         }
 
         return savedUser;
