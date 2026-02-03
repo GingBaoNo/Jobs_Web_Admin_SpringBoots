@@ -15,7 +15,7 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+        <div class="container-fluid px-4">
             <a class="navbar-brand" href="/">
                 <i class="fas fa-briefcase me-2"></i>Admin Dashboard
             </a>
@@ -83,8 +83,8 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h2 class="mb-4">Quản lý ngành nghề</h2>
+    <div class="container-fluid px-4 mt-4">
+        <h2 class="mb-4 section-title">Quản lý ngành nghề</h2>
 
         <!-- Thống báo lỗi hoặc thành công -->
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
@@ -138,43 +138,49 @@
         </div>
 
         <!-- Danh sách ngành nghề -->
-        <div class="card">
-            <div class="card-header">
-                <h5>Danh sách ngành nghề</h5>
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Danh sách ngành nghề</h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
+                <div class="table-responsive table-container">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <th>ID</th>
-                                <th>Tên ngành nghề</th>
-                                <th>Lĩnh vực</th>
-                                <th>Thao tác</th>
+                                <th class="fw-bold text-uppercase text-muted small" style="width: 10%;">ID</th>
+                                <th class="fw-bold text-uppercase text-muted small" style="width: 30%;">Tên ngành nghề</th>
+                                <th class="fw-bold text-uppercase text-muted small" style="width: 30%;">Lĩnh vực</th>
+                                <th class="fw-bold text-uppercase text-muted small" style="width: 30%;">Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="workDiscipline : ${workDisciplines}">
-                                <td th:text="${workDiscipline.maNganh}"></td>
-                                <td th:text="${workDiscipline.tenNganh}"></td>
-                                <td th:text="${workDiscipline.workField.tenLinhVuc}"></td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editModal"
-                                            th:data-id="${workDiscipline.maNganh}"
-                                            th:data-name="${workDiscipline.tenNganh}"
-                                            th:data-field-id="${workDiscipline.workField.maLinhVuc}"
-                                            onclick="fillEditForm(this)">
-                                        Sửa
-                                    </button>
-                                    <form th:action="@{/admin/work-disciplines/{id}/delete(id=${workDiscipline.maNganh})}"
-                                          method="post" style="display: inline;">
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Bạn có chắc chắn muốn xóa ngành nghề này?')">
-                                            Xóa
+                            <tr th:each="workDiscipline : ${workDisciplines}" class="align-middle">
+                                <td class="py-3" th:text="${workDiscipline.maNganh}">1</td>
+                                <td class="py-3" th:text="${workDiscipline.tenNganh}">Tên ngành nghề</td>
+                                <td class="py-3" th:text="${workDiscipline.workField.tenLinhVuc}">Tên lĩnh vực</td>
+                                <td class="py-3">
+                                    <div class="d-flex flex-column gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editModal"
+                                                th:attr="data-id=${workDiscipline.maNganh}, data-name=${workDiscipline.tenNganh}, data-field-id=${workDiscipline.workField.maLinhVuc}"
+                                                onclick="fillEditForm(this)">
+                                            <i class="fas fa-edit me-1"></i> Sửa
                                         </button>
-                                    </form>
+                                        <form th:action="@{/admin/work-disciplines/{id}/delete(id=${workDiscipline.maNganh})}"
+                                              method="post" style="display: inline;"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa ngành nghề này?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-trash me-1"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(workDisciplines)}">
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fas fa-industry fa-3x mb-3"></i>
+                                    <p class="mb-0">Không có ngành nghề nào</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -219,7 +225,7 @@
     </div>
 
         <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
+        <div class="container-fluid px-4">
             <div class="row">
                 <div class="col-md-6">
                     <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>

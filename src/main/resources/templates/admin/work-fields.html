@@ -9,11 +9,63 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+            border-radius: 3px;
+        }
+
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+            border-radius: calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0 !important;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+        }
+
+        .table th {
+            border-top: none;
+            border-bottom-width: 2px;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .status-badge {
+            padding: 0.5em 0.75em;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+        <div class="container-fluid px-4">
             <a class="navbar-brand" href="/">
                 <i class="fas fa-briefcase me-2"></i>Admin Dashboard
             </a>
@@ -82,11 +134,10 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container mt-4">
+    <main class="container-fluid px-4 mt-4">
         <div class="row">
-            <div class="col-md-12">
-                <h2 th:text="${title}">Quản lý ngành nghề</h2>
-                <hr>
+            <div class="col-12">
+                <h2 class="mb-4 section-title" th:text="${title}">Quản lý ngành nghề</h2>
             </div>
         </div>
 
@@ -127,52 +178,54 @@
 
         <!-- Danh sách ngành nghề -->
         <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Danh sách ngành nghề</h5>
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>Danh sách ngành nghề</h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
+                        <div class="table-responsive table-container">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Tên ngành nghề</th>
-                                        <th>Hành động</th>
+                                        <th class="fw-bold text-uppercase text-muted small" style="width: 10%;">ID</th>
+                                        <th class="fw-bold text-uppercase text-muted small" style="width: 60%;">Tên ngành nghề</th>
+                                        <th class="fw-bold text-uppercase text-muted small" style="width: 30%;">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="workField : ${workFields}">
-                                        <td th:text="${workField.maLinhVuc}">1</td>
-                                        <td th:text="${workField.tenLinhVuc}">IT - Phần mềm</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                    data-bs-toggle="modal"
-                                                    th:data-bs-target="'#editModal' + ${workField.maLinhVuc}"
-                                                    th:data-field-id="${workField.maLinhVuc}"
-                                                    th:data-field-name="${workField.tenLinhVuc}"
-                                                    onclick="loadEditFormFromData(this)">
-                                                <i class="fas fa-edit"></i> Sửa
-                                            </button>
-                                            <form th:action="@{/admin/work-fields/{id}/delete(id=${workField.maLinhVuc})}"
-                                                  method="post"
-                                                  style="display: inline;"
-                                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa ngành nghề này không?');">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash"></i> Xóa
+                                    <tr th:each="workField : ${workFields}" class="align-middle">
+                                        <td class="py-3" th:text="${workField.maLinhVuc}">1</td>
+                                        <td class="py-3" th:text="${workField.tenLinhVuc}">IT - Phần mềm</td>
+                                        <td class="py-3">
+                                            <div class="d-flex flex-column gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary w-100"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#editModal' + ${workField.maLinhVuc}"
+                                                        th:attr="data-field-id=${workField.maLinhVuc}, data-field-name=${workField.tenLinhVuc}"
+                                                        onclick="loadEditFormFromData(this)">
+                                                    <i class="fas fa-edit me-1"></i> Sửa
                                                 </button>
-                                            </form>
+                                                <form th:action="@{/admin/work-fields/{id}/delete(id=${workField.maLinhVuc})}"
+                                                      method="post"
+                                                      style="display: inline;"
+                                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa ngành nghề này không?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                        <i class="fas fa-trash me-1"></i> Xóa
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(workFields)}">
+                                        <td colspan="3" class="text-center py-5 text-muted">
+                                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                            <p class="mb-0">Chưa có ngành nghề nào được tạo</p>
+                                            <p class="mb-0" th:if="${searchQuery != ''}" th:text="'Không tìm thấy kết quả cho: ' + ${searchQuery}"></p>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
-
-                            <div th:if="${workFields.empty}" class="text-center py-4">
-                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">Chưa có ngành nghề nào được tạo</p>
-                                <p th:if="${searchQuery != ''}" th:text="'Không tìm thấy kết quả cho: ' + ${searchQuery}"></p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,7 +260,7 @@
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
+        <div class="container-fluid px-4">
             <div class="row">
                 <div class="col-md-6">
                     <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>

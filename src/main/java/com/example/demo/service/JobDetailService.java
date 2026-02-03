@@ -374,4 +374,14 @@ public class JobDetailService {
         // Lấy công việc từ các lĩnh vực phổ biến
         return jobDetailRepository.findByWorkFieldIdIn(fieldIds);
     }
+
+    // Phương thức cập nhật trạng thái tin tuyển dụng
+    public JobDetail updateJobStatus(Integer jobId, String newStatus) {
+        JobDetail job = jobDetailRepository.findById(jobId).orElse(null);
+        if (job != null) {
+            job.setTrangThaiTinTuyen(newStatus);
+            return jobDetailRepository.save(job);
+        }
+        return null;
+    }
 }

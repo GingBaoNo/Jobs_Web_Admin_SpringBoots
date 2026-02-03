@@ -621,4 +621,45 @@ public class JobController {
         model.addAttribute("title", job.getTieuDe());
         return "public/job-detail";
     }
+
+    // Endpoint cập nhật trạng thái tin tuyển dụng cho nhà tuyển dụng
+    @PostMapping("/employer/jobs/{id}/toggle-status")
+    public String toggleJobStatus(@PathVariable Integer id,
+                                  @RequestParam String newStatus,
+                                  Authentication authentication,
+                                  Model model) {
+        User user = userService.getUserByTaiKhoan(authentication.getName()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        JobDetail job = jobDetailService.getJobById(id);
+        if (job == null) {
+            model.addAttribute("errorMessage", "Không tìm thấy tin tuyển dụng.");
+            return "redirect:/employer/jobs";
+        }
+
+        // Kiểm tra xem công việc này có thuộc về công ty của người dùng không
+        Company company = companyService.getCompanyByUser(user).orElse(null);
+        if (company == null || !job.getCompany().getMaCongTy().equals(company.getMaCongTy())) {
+            model.addAttribute("errorMessage", "Bạn không có quyền cập nhật trạng thái tin tuyển dụng này.");
+            return "redirect:/employer/jobs";
+        }
+
+        // Kiểm tra trạng thái hợp lệ
+        if (!"Mở".equals(newStatus) && !"Đã đóng".equals(newStatus) && !"Tạm dừng".equals(newStatus)) {
+            model.addAttribute("errorMessage", "Trạng thái không hợp lệ.");
+            return "redirect:/employer/jobs";
+        }
+
+        try {
+            // Cập nhật trạng thái
+            jobDetailService.updateJobStatus(id, newStatus);
+            model.addAttribute("successMessage", "Cập nhật trạng thái tin tuyển dụng thành công.");
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
+        }
+
+        return "redirect:/employer/jobs";
+    }
 }

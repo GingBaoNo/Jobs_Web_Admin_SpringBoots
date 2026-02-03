@@ -9,11 +9,62 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+            border-radius: 3px;
+        }
+
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+            border-radius: calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0 !important;
+        }
+
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn {
+            border-radius: 0.375rem;
+        }
+
+        .alert {
+            border-radius: 0.5rem;
+        }
+
+        .img-thumbnail {
+            border-radius: 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.8em;
+            padding: 0.35em 0.65em;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+        <div class="container-fluid px-4">
             <a class="navbar-brand" href="/">
                 <i class="fas fa-building me-2"></i>NTD Dashboard
             </a>
@@ -62,27 +113,30 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container mt-4">
+    <main class="container-fluid px-4 mt-4">
         <div class="row">
-            <div class="col-md-12">
-                <h2 th:text="${title}">Hồ sơ công ty</h2>
-                <hr>
+            <div class="col-12">
+                <h2 class="mb-4 section-title" th:text="${title}">Hồ sơ công ty</h2>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Thông tin công ty</h5>
+        <div class="row justify-content-center">
+            <div class="col-xl-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-building me-2"></i>Thông tin công ty</h5>
                     </div>
                     <div class="card-body">
-                        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">
-                            success message
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}">success message</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
 
-                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">
-                            error message
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${errorMessage}">error message</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
 
                         <div class="row">
@@ -136,33 +190,45 @@
                     </div>
                 </div>
 
-                <div class="card mt-4" th:if="${company}">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Trạng thái xác thực</h5>
+                <div class="card shadow-sm mt-4" th:if="${company}">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0"><i class="fas fa-shield-alt me-2 text-primary"></i>Trạng thái xác thực</h5>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1">Trạng thái xác thực công ty</p>
-                                <!-- Hiển thị trạng thái dựa trên trangThai -->
-                                <p class="text-muted mb-0" th:switch="${company.trangThai}">
-                                    <span th:case="'APPROVED'"><i class="fas fa-check-circle text-success me-2"></i>Đã được duyệt</span>
-                                    <span th:case="'PENDING'"><i class="fas fa-clock text-warning me-2"></i>Đang chờ duyệt</span>
-                                    <span th:case="'REJECTED'"><i class="fas fa-times-circle text-danger me-2"></i>Đã bị từ chối</span>
-                                    <span th:case="*"><i class="fas fa-exclamation-circle text-secondary me-2"></i>Trạng thái không xác định</span>
-                                </p>
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="text-muted mb-1">Trạng thái xác thực công ty</h6>
+                                <!-- Hiển thị trạng thái dựa trên daXacThuc -->
+                                <div th:switch="${company.daXacThuc}">
+                                    <span th:case="true" class="badge bg-success rounded-pill px-3 py-2">
+                                        <i class="fas fa-check-circle me-2"></i>Đã được xác thực
+                                    </span>
+                                    <span th:case="false" class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                        <i class="fas fa-clock me-2"></i>Chưa được xác thực
+                                    </span>
+                                    <span th:case="*" class="badge bg-secondary rounded-pill px-3 py-2">
+                                        <i class="fas fa-exclamation-circle me-2"></i>Trạng thái không xác định
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Ngày tạo: <span th:text="${#temporals.format(company.ngayTao, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </small>
+                                </div>
                             </div>
-                           <div>
+                            <div class="col-md-4 text-md-end">
                                 <!-- Nút hành động dựa trên trạng thái -->
-                                <button class="btn btn-sm btn-outline-primary" th:if="${company.trangThai == 'REJECTED'}" th:onclick="|location.href='@{/employer/company/edit}'|">Gửi lại yêu cầu xác thực</button>
-                                <button class="btn btn-sm btn-outline-success" th:if="${company.trangThai == 'APPROVED'}">Thông tin đã được xác thực</button>
-                                <button class="btn btn-sm btn-outline-warning" th:if="${company.trangThai == 'PENDING'}" disabled>Đang chờ xử lý</button>
-                                <!-- Có thể thêm logic cho trạng thái khác nếu cần -->
+                                <button class="btn btn-sm btn-outline-primary px-4"
+                                        th:if="${!company.daXacThuc}"
+                                        th:onclick="|location.href='@{/employer/company/edit}'|">
+                                    <i class="fas fa-edit me-1"></i>Cập nhật
+                                </button>
+                                <button class="btn btn-sm btn-outline-success px-4"
+                                        th:if="${company.daXacThuc}">
+                                    <i class="fas fa-check me-1"></i>Đã xác thực
+                                </button>
                             </div>
-                        </div>
-                        <div class="mt-3">
-                            <p class="text-muted mb-1">Ngày gửi yêu cầu: <span th:text="${#temporals.format(company.ngayTao, 'dd/MM/yyyy HH:mm')}"></span></p>
-                            <!-- Có thể thêm ngày duyệt nếu có trường này sau này -->
                         </div>
                     </div>
                 </div>
@@ -172,7 +238,7 @@
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
+        <div class="container-fluid px-4">
             <div class="row">
                 <div class="col-md-6">
                     <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>
