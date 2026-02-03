@@ -11,10 +11,158 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS
     <link th:href="@{/css/style.css}" rel="stylesheet"> -->
+        <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .job-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        .company-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-right: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .job-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .job-detail-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .job-info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .job-info-item:last-child {
+            border-bottom: none;
+        }
+        .btn-apply {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-apply:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .section-title {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        .salary-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .job-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
 </head>
 <body>
     <!-- Include layout header -->
-    <div th:replace="~{layout :: header}"></div>
+        <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-briefcase me-2"></i>Tìm Việc Làm
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/jobs"><i class="fas fa-briefcase me-1"></i>Việc làm</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/companies"><i class="fas fa-building me-1"></i>Công ty</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        <!-- Show user profile dropdown when logged in -->
+                        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>
+                                <span sec:authentication="name"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/"><i class="fas fa-home me-2"></i>Trang chủ</a></li>
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Hồ sơ của tôi</a></li>
+                                <li sec:authorize="hasRole('NV')"><a class="dropdown-item" href="/employee/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Bảng điều khiển NV</a></li>
+                                <li sec:authorize="hasRole('NTD')"><a class="dropdown-item" href="/employer/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Bảng điều khiển NTD</a></li>
+                                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Quản trị viên</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Show login/register links when not logged in -->
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt me-1"></i>Đăng nhập</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="nav-link" href="/register"><i class="fas fa-user-plus me-1"></i>Đăng ký</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <div class="container-fluid px-4 mt-4">
         <div class="row">
