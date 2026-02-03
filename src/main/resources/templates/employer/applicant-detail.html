@@ -55,61 +55,159 @@
             padding: 0.5em 0.75em;
             font-weight: 500;
         }
+
+        /* CSS để đảm bảo footer luôn ở dưới cùng */
+        html, body {
+            height: 100%;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            padding-bottom: 20px;
+        }
+
+        /* CSS cho card công việc giống như trong jobs.html */
+        .job-detail-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .job-info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .job-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .salary-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .job-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-building me-2"></i>NTD Dashboard
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/employer/chat}"><i class="fas fa-comments"></i> Trò chuyện</a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <span sec:authentication="name"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form th:action="@{/logout}" method="post" style="display: inline;">
-                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <!-- Wrapper để đảm bảo footer luôn ở dưới cùng -->
+    <div class="page-wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-building me-2"></i>NTD Dashboard
+                </a>
 
-    <!-- Main Content -->
-    <main class="container-fluid px-4 mt-4">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{/employer/dashboard}">Bảng điều khiển</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employer/company}">Thông tin công ty</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employer/jobs}">Quản lý tin tuyển dụng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employer/applicants}">Quản lý ứng viên</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/employer/chat}"><i class="fas fa-comments"></i> Trò chuyện</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span sec:authentication="name"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" th:href="@{/employer/profile}">Hồ sơ công ty</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container-fluid px-4 mt-4">
         <div class="row">
             <div class="col-12">
                 <h2 class="mb-4 section-title">Chi tiết Ứng viên</h2>
@@ -293,15 +391,68 @@
                             </div>
                         </div>
                         <div class="col-lg-4 mb-4">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="card-title mb-0"><i class="fas fa-briefcase me-2 text-primary"></i>Công việc</h5>
-                                </div>
+                            <div class="card shadow-sm job-detail-card">
                                 <div class="card-body">
-                                    <p class="mb-2"><strong>Tiêu đề:</strong> <span th:text="${appliedJob.jobDetail.tieuDe}">Không có</span></p>
-                                    <p class="mb-2"><strong>Mô tả công việc:</strong> <span th:text="${appliedJob.jobDetail.chiTiet}">Không có</span></p>
-                                    <p class="mb-2"><strong>Yêu cầu công việc:</strong> <span th:text="${appliedJob.jobDetail.yeuCauCongViec}">Không có</span></p>
-                                    <p class="mb-0"><strong>Quyền lợi:</strong> <span th:text="${appliedJob.jobDetail.quyenLoi}">Không có</span></p>
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title mb-3">
+                                            <a th:href="@{/jobs/{id}(id=${appliedJob.jobDetail.maCongViec})}"
+                                               class="text-decoration-none"
+                                               th:text="${appliedJob.jobDetail.tieuDe}">Tên công việc</a>
+                                        </h5>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p class="card-text text-muted">
+                                                <i class="fas fa-building me-1"></i>
+                                                <span th:text="${appliedJob.jobDetail.company.tenCongTy}">Tên công ty</span>
+                                            </p>
+
+                                            <p class="card-text" th:utext="${#strings.abbreviate(appliedJob.jobDetail.chiTiet, 200)}">
+                                                Mô tả công việc...
+                                            </p>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-suitcase me-1"></i>
+                                                        <span th:text="${appliedJob.jobDetail.workField.tenLinhVuc}">Lĩnh vực</span>
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        <span th:if="${appliedJob.jobDetail.workType != null}" th:text="${appliedJob.jobDetail.workType.tenHinhThuc}">Hình thức</span>
+                                                        <span th:unless="${appliedJob.jobDetail.workType != null}">Không xác định</span>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="border-start ps-3">
+                                                <div th:if="${appliedJob.jobDetail.jobPosition != null}">
+                                                    <strong>Vị trí:</strong>
+                                                    <span th:text="${appliedJob.jobDetail.jobPosition.tenViTri}"></span><br>
+                                                </div>
+                                                <div th:if="${appliedJob.jobDetail.experienceLevel != null}">
+                                                    <strong>Kinh nghiệm:</strong>
+                                                    <span th:text="${appliedJob.jobDetail.experienceLevel.tenCapDo}"></span><br>
+                                                </div>
+                                                <div>
+                                                    <strong>Đăng ngày:</strong>
+                                                    <span th:text="${#temporals.format(appliedJob.jobDetail.ngayDang, 'dd/MM/yyyy')}"></span><br>
+                                                </div>
+                                                <div>
+                                                    <strong>Hạn nộp:</strong>
+                                                    <span th:text="${appliedJob.jobDetail.ngayKetThucTuyenDung != null ? #temporals.format(appliedJob.jobDetail.ngayKetThucTuyenDung, 'dd/MM/yyyy') : 'Không xác định'}"></span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <a th:href="@{/jobs/{id}(id=${appliedJob.jobDetail.maCongViec})}"
+                                                       class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -417,53 +568,54 @@
                 </main>
 
                 <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container-fluid px-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>
-                    <p>Giúp kết nối nhà tuyển dụng và người tìm việc một cách hiệu quả.</p>
-                </div>
-                <div class="col-md-3">
-                    <h5>Liên kết</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-light">Trang chủ</a></li>
-                        <li><a href="/jobs" class="text-light">Việc làm</a></li>
-                        <li><a href="/companies" class="text-light">Công ty</a></li>
-                        <li><a href="#" class="text-light">Liên hệ</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Liên hệ</h5>
-                    <p><i class="fas fa-envelope me-2"></i> info@timviec.com</p>
-                    <p><i class="fas fa-phone me-2"></i> 0123 456 789</p>
-                </div>
-            </div>
-            <hr class="my-3">
-            <div class="text-center">
-                <p>&copy; 2025 Hệ Thống Tìm Kiếm Việc Làm. Tất cả quyền được bảo lưu.</p>
-            </div>
-        </div>
-    </footer>
+                <footer class="bg-dark text-light py-4 mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Hệ Thống Tìm Kiếm Việc Làm</h5>
+                                <p>Giúp kết nối nhà tuyển dụng và người tìm việc một cách hiệu quả.</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h5>Liên kết</h5>
+                                <ul class="list-unstyled">
+                                    <li><a href="/" class="text-light">Trang chủ</a></li>
+                                    <li><a href="/jobs" class="text-light">Việc làm</a></li>
+                                    <li><a href="/companies" class="text-light">Công ty</a></li>
+                                    <li><a href="#" class="text-light">Liên hệ</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h5>Liên hệ</h5>
+                                <p><i class="fas fa-envelope me-2"></i> info@timviec.com</p>
+                                <p><i class="fas fa-phone me-2"></i> 0123 456 789</p>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div class="text-center">
+                            <p>&copy; 2025 Hệ Thống Tìm Kiếm Việc Làm. Tất cả quyền được bảo lưu.</p>
+                        </div>
+                    </div>
+                </footer>
+            </div> <!-- Đóng thẻ div wrapper -->
 
-                <!-- Bootstrap 5 JS -->
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+            <!-- Bootstrap 5 JS -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-        <script th:inline="javascript">
-            function getStatusBadgeClass(status) {
-                switch(status) {
-                    case 'Tuyển dụng':
-                        return 'bg-success';
-                    case 'Phỏng vấn':
-                        return 'bg-warning text-dark';
-                    case 'Từ chối':
-                        return 'bg-danger';
-                    case 'Đã xem':
-                        return 'bg-secondary';
-                    default:
-                        return 'bg-info';
+            <script th:inline="javascript">
+                function getStatusBadgeClass(status) {
+                    switch(status) {
+                        case 'Tuyển dụng':
+                            return 'bg-success';
+                        case 'Phỏng vấn':
+                            return 'bg-warning text-dark';
+                        case 'Từ chối':
+                            return 'bg-danger';
+                        case 'Đã xem':
+                            return 'bg-secondary';
+                        default:
+                            return 'bg-info';
+                    }
                 }
-            }
-        </script>
-</body>
+            </script>
+        </body>
 </html>
